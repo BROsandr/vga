@@ -1,118 +1,91 @@
-// Copyright 2007 Altera Corporation. All rights reserved.  
-// Altera products are protected under numerous U.S. and foreign patents, 
-// maskwork rights, copyrights and other intellectual property laws.  
-//
-// This reference design file, and your use thereof, is subject to and governed
-// by the terms and conditions of the applicable Altera Reference Design 
-// License Agreement (either as signed by you or found at www.altera.com).  By
-// using this reference design file, you indicate your acceptance of such terms
-// and conditions between you and Altera Corporation.  In the event that you do
-// not agree with such terms and conditions, you may not use the reference 
-// design file and please promptly destroy any copies you have made.
-//
-// This reference design file is being provided on an "as-is" basis and as an 
-// accommodation and therefore all warranties, representations or guarantees of 
-// any kind (whether express, implied or statutory) including, without 
-// limitation, warranties of merchantability, non-infringement, or fitness for
-// a particular purpose, are specifically disclaimed.  By making this reference
-// design file available, Altera expressly does not recommend, suggest or 
-// require that this reference design file be used in combination with any 
-// other product not provided by Altera.
-/////////////////////////////////////////////////////////////////////////////
-
-// baeckler - 02-15-2007
-
-module	vga_driver	(
-		r,g,b,
-		current_x,current_y,request,
-		vga_r,vga_g,vga_b,vga_hs,vga_vs,vga_blank,vga_clock,
-		clk27,rst27);
-
-input [3:0]	r,g,b;
-output [9:0] current_x;
-output [9:0] current_y;
-output request;
-
-output [3:0] vga_r, vga_g, vga_b;
-output vga_hs, vga_vs, vga_blank, vga_clock;
-
-input clk27, rst27;	
-
-////////////////////////////////////////////////////////////
-
-//	Horizontal	Timing
-parameter	H_FRONT	=	16;
-parameter	H_SYNC	=	96;
-parameter	H_BACK	=	48;
-parameter	H_ACT	=	640;
-parameter	H_BLANK	=	H_FRONT+H_SYNC+H_BACK;
-parameter	H_TOTAL	=	H_FRONT+H_SYNC+H_BACK+H_ACT;
-
-//	Vertical Timing
-parameter	V_FRONT	=	11;
-parameter	V_SYNC	=	2;
-parameter	V_BACK	=	31;
-parameter	V_ACT	=	480;
-parameter	V_BLANK	=	V_FRONT+V_SYNC+V_BACK;
-parameter	V_TOTAL	=	V_FRONT+V_SYNC+V_BACK+V_ACT;
-
-////////////////////////////////////////////////////////////
-
-reg [9:0] h_cntr, v_cntr, current_x, current_y;
-reg h_active, v_active, vga_hs, vga_vs;
-
-assign	vga_blank = h_active & v_active;
-assign	vga_clock = ~clk27;
-assign	vga_r = r;
-assign	vga_g = g;
-assign	vga_b = b;
-assign	request	= ((h_cntr>=H_BLANK && h_cntr<H_TOTAL)	&&
-						 (v_cntr>=V_BLANK && v_cntr<V_TOTAL));
-
-always @(posedge clk27) begin
-	if(rst27) begin
-		h_cntr <= 0;
-		v_cntr <= 0;
-		vga_hs <= 1'b1;
-		vga_vs <= 1'b1;
-		current_x <= 0;
-		current_y <= 0;
-		h_active <= 1'b0;
-		v_active <= 1'b0;
-	end
-	else begin
-		if(h_cntr != H_TOTAL) begin
-			h_cntr <= h_cntr + 1'b1;
-			if (h_active) current_x <= current_x + 1'b1;
-			if (h_cntr == H_BLANK-1) h_active <= 1'b1;
-		end
-		else begin
-			h_cntr	<= 0;
-			h_active <= 1'b0;
-			current_x <= 0;
-		end
-		
-		if(h_cntr == H_FRONT-1) begin
-			vga_hs <= 1'b0;
-		end		
-		
-		if (h_cntr == H_FRONT+H_SYNC-1) begin
-			vga_hs <= 1'b1;
-			
-			if(v_cntr != V_TOTAL) begin
-				v_cntr <= v_cntr + 1'b1;
-				if (v_active) current_y <= current_y + 1'b1;
-				if (v_cntr == V_BLANK-1) v_active <= 1'b1;
-			end
-			else begin
-				v_cntr <= 0;
-				current_y <= 0;
-				v_active <= 1'b0;
-			end
-			if(v_cntr == V_FRONT-1) vga_vs <= 1'b0;
-			if(v_cntr == V_FRONT+V_SYNC-1) vga_vs <= 1'b1;
-		end
-	end
-end
-
+module GraphicsCard
+#(
+    parameter HSYNC_BITS = 11,
+    parameter VSYNC_BITS = 11,
+    
+    parameter HD = 1280,                    // Display area
+    parameter HF = 48,                      // Front porch
+    parameter HR = 112,                     // Retrace/Sync
+    parameter HB = 248,                     // Back Porch
+    parameter HMAX = HD + HF + HR + HB - 1, // MAX counter value
+    
+    parameter VD = 1024,
+    parameter VF = 1,
+    parameter VR = 3,
+    parameter VB = 38,
+    parameter VMAX = VD + VF + VR + VB - 1
+) (
+    input Clk, Reset,
+    
+    input [11:0] SW,
+    
+    output VGA_HS, VGA_VS,
+    output [11:0] RGB,
+    output [11:0] LED
+);
+    
+    // Display timing counters
+    reg [HSYNC_BITS-1:0] hcount = 0;
+    reg [VSYNC_BITS-1:0] vcount = 0;
+    
+    // Sync signal registers, vertical counter enable register, and pixel enable register
+    reg hsync = 0, vsync = 0, pixel_enable = 0;
+    
+    // Switch state buffer registers
+    reg [11:0] switches;
+    
+    // Horizontal counter
+    always @ (posedge Clk or posedge Reset) begin
+        if (Reset == 1'b1) begin
+            hcount <= 0;
+        end
+        else if (hcount < HMAX) begin
+            hcount <= hcount + 1;
+        end
+        else begin
+            hcount <= 0;
+        end
+    end
+    
+    // Vertical counter
+    always @ (posedge Clk or posedge Reset) begin
+        if (Reset == 1'b1) vcount <= 0;
+        else begin
+            if (hcount == HMAX) begin
+                if (vcount < VMAX) vcount <= vcount + 1;
+                else vcount <= 0;
+            end
+        end
+    end
+    
+    // Horizontal and Vertical sync signal generator
+    always @ (posedge Clk or posedge Reset) begin
+        if (Reset) begin
+            hsync <= 1'b0;
+            vsync <= 1'b0;
+        end
+        else begin
+            hsync <= (hcount < HR) ? 1'b1 : 1'b0;
+            vsync <= (vcount < VR) ? 1'b1 : 1'b0;
+        end
+    end
+    
+    // Assigning register values to outputs
+    assign VGA_HS = hsync;
+    assign VGA_VS = vsync;
+    
+    always @ (posedge Clk or posedge Reset) begin
+        if (Reset) pixel_enable <= 1'b0;
+        else
+            if (hcount >= (HR+HB) && hcount < (HR+HB+HD) && vcount >= (VR+VB) && vcount < (VR+VB+VD)) pixel_enable <= 1'b1;
+            else pixel_enable <= 1'b0;
+    end
+    
+    
+    // Buffering switch inputs
+    always @ (SW) switches <= SW;
+    
+    // Assigning the current switch state to both view which switches are on and output to VGA RGB DAC
+    assign LED = switches;
+    assign RGB = (pixel_enable) ? switches : 12'b0;
 endmodule
