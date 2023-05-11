@@ -15,7 +15,7 @@ module GraphicsCard
     parameter VB = 38,
     parameter VMAX = VD + VF + VR + VB - 1
 ) (
-    input Clk, Reset,
+    input clk, arstn,
     
     input [11:0] SW,
     
@@ -23,6 +23,8 @@ module GraphicsCard
     output [11:0] RGB,
     output [11:0] LED
 );
+    logic Reset;
+    assign Reset = ~arstn;
     
     // Display timing counters
     reg [HSYNC_BITS-1:0] hcount = 0;
@@ -35,7 +37,7 @@ module GraphicsCard
     reg [11:0] switches;
     
     // Horizontal counter
-    always @ (posedge Clk or posedge Reset) begin
+    always @ (posedge clk or posedge Reset) begin
         if (Reset == 1'b1) begin
             hcount <= 0;
         end
@@ -48,7 +50,7 @@ module GraphicsCard
     end
     
     // Vertical counter
-    always @ (posedge Clk or posedge Reset) begin
+    always @ (posedge clk or posedge Reset) begin
         if (Reset == 1'b1) vcount <= 0;
         else begin
             if (hcount == HMAX) begin
@@ -59,7 +61,7 @@ module GraphicsCard
     end
     
     // Horizontal and Vertical sync signal generator
-    always @ (posedge Clk or posedge Reset) begin
+    always @ (posedge clk or posedge Reset) begin
         if (Reset) begin
             hsync <= 1'b0;
             vsync <= 1'b0;
@@ -74,7 +76,7 @@ module GraphicsCard
     assign VGA_HS = hsync;
     assign VGA_VS = vsync;
     
-    always @ (posedge Clk or posedge Reset) begin
+    always @ (posedge clk or posedge Reset) begin
         if (Reset) pixel_enable <= 1'b0;
         else
             if (hcount >= (HR+HB) && hcount < (HR+HB+HD) && vcount >= (VR+VB) && vcount < (VR+VB+VD)) pixel_enable <= 1'b1;
@@ -83,7 +85,8 @@ module GraphicsCard
     
     
     // Buffering switch inputs
-    always @ (SW) switches <= SW;
+    always @ (posedge clk) 
+        switches <= SW;
     
     // Assigning the current switch state to both view which switches are on and output to VGA RGB DAC
     assign LED = switches;
