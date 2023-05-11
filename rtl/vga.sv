@@ -1,4 +1,4 @@
-module GraphicsCard
+module vga
 #(
     parameter HSYNC_BITS = 11,
     parameter VSYNC_BITS = 11,
@@ -21,14 +21,15 @@ module GraphicsCard
     
     output VGA_HS, VGA_VS,
     output [11:0] RGB,
-    output [11:0] LED
+    output [11:0] LED,
+
+    // Display timing counters
+    output reg [HSYNC_BITS-1:0] hcount,
+    output reg [VSYNC_BITS-1:0] vcount
+
 );
     logic Reset;
     assign Reset = ~arstn;
-    
-    // Display timing counters
-    reg [HSYNC_BITS-1:0] hcount = 0;
-    reg [VSYNC_BITS-1:0] vcount = 0;
     
     // Sync signal registers, vertical counter enable register, and pixel enable register
     reg hsync = 0, vsync = 0, pixel_enable = 0;
