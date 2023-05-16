@@ -16,6 +16,8 @@ module vga_top_top(
   
   assign       color = 1'b1;
   
+  logic        init_ff;
+  
   logic        we_ff;
 
   vga_top vga_top(
@@ -31,8 +33,11 @@ module vga_top_top(
   );
   
   always_ff @( posedge clk_i or negedge arstn_i )
-    if( ~arstn_i ) we_ff <= 1'b1;
-    else if( addr_y_ff >= 11'd1024 ) we_ff <= 1'b0;
+    if( ~arstn_i ) init_ff <= 1'b1;
+    else if( addr_y_ff >= 11'd1024 ) init_ff <= 1'b0;
+    
+  always_ff @( posedge clk_i )
+    we_ff <= init_ff;
     
   always_ff @( posedge clk_i or negedge arstn_i )
     if( ~arstn_i ) addr_y_ff <= '0;
