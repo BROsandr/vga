@@ -1,4 +1,4 @@
-module vga_top(
+module vga_mem_wrapper(
   input clk_i, arstn_i,
   
   output VGA_HS_o, VGA_VS_o,
