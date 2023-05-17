@@ -25,14 +25,15 @@ module vga
 
     // Display timing counters
     output reg [HSYNC_BITS-1:0] hcount,
-    output reg [VSYNC_BITS-1:0] vcount
+    output reg [VSYNC_BITS-1:0] vcount,
+    output reg pixel_enable
 
 );
     logic Reset;
     assign Reset = ~arstn;
     
     // Sync signal registers, vertical counter enable register, and pixel enable register
-    reg hsync = 0, vsync = 0, pixel_enable = 0;
+    reg hsync = 0, vsync = 0;
     
     // Switch state buffer registers
     reg [11:0] switches;
