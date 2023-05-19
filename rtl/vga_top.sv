@@ -17,7 +17,7 @@ module vga_top(
     WHITE,
     BLACK,
     BLUE,
-    RED
+    GREEN
   } color_type;
 
   logic [11:0] color_ff;
@@ -76,10 +76,10 @@ module vga_top(
   
   always_ff @( posedge clk_i )
     case( video_buffer_pixel_ff )
-      WHITE: color_ff <= { 12{1'b0} };
-      BLACK: color_ff <= { 12{1'b1} };
-      GREEN: color_ff <= { { 4{1'b1} }, { 8{1'b0} } };
-      RED  : color_ff <= { { 4{1'b0} }, { 4{1'b1} }, { 4{1'b0} } };
+      BLACK: color_ff <= { 12{1'b0} };
+      WHITE: color_ff <= { 12{1'b1} };
+      BLUE: color_ff <= { { 4{1'b1} }, { 8{1'b0} } };
+      GREEN  : color_ff <= { { 4{1'b0} }, { 4{1'b1} }, { 4{1'b0} } };
     endcase
 
 
