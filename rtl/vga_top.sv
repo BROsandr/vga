@@ -16,7 +16,7 @@ module vga_top(
   enum bit [1:0] {
     WHITE,
     BLACK,
-    GREEN,
+    BLUE,
     RED
   } color_type;
 
