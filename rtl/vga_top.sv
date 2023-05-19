@@ -2,7 +2,7 @@ module vga_top(
   input clk_i, arstn_i,
   
   output VGA_HS_o, VGA_VS_o,
-  input  color_i,
+  input [1:0]  color_i,
   input [10:0] addr_x_i,
   input [10:0] addr_y_i,
   input        we_i,
@@ -13,9 +13,12 @@ module vga_top(
              VSYNC_BITS = 11,
              HD         = 1280,
              VD         = 1024;
-
-  localparam logic [11:0] WHITE = '1; 
-  localparam logic [11:0] BLACK = '0; 
+  enum bit [1:0] {
+    WHITE,
+    BLACK,
+    GREEN,
+    RED
+  } color_type;
 
   logic [11:0] color_ff;
   logic [HSYNC_BITS-1:0] hcount;
@@ -52,9 +55,9 @@ module vga_top(
     .pixel_enable( pixel_enable )
   );
 
-  logic video_buffer_ff[VD * HD];
+  logic [1:0] video_buffer_ff[VD * HD];
   
-  logic video_buffer_pixel_ff;
+  logic [1:0] video_buffer_pixel_ff;
   
   always_ff @( posedge clk_i ) 
     if( we_i )  video_buffer_ff[addr_x_i * HD + addr_y_i] <= color_i;
@@ -72,6 +75,12 @@ module vga_top(
 //    video_buffer_pixel_ff <= video_buffer_ff[( vcount ) * HD + ( hcount )];
   
   always_ff @( posedge clk_i )
-    color_ff <= { 12{video_buffer_pixel_ff} };
+    case( video_buffer_pixel_ff )
+      WHITE: color_ff <= { 12{1'b0} };
+      BLACK: color_ff <= { 12{1'b1} };
+      GREEN: color_ff <= { { 4{1'b1} }, { 8{1'b0} } };
+      RED  : color_ff <= { { 4{1'b0} }, { 4{1'b1} }, { 4{1'b0} } };
+    endcase
+
 
 endmodule

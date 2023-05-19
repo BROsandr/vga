@@ -12,9 +12,9 @@ module vga_top_top(
   
   assign addr_x = 11'd1000;
   
-  logic        color;
+  logic [1:0]       color;
   
-  assign       color = 1'b1;
+  assign       color = 2'd2;
   
   logic        init_ff;
   
