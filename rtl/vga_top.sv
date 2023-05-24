@@ -14,8 +14,8 @@ module vga_top(
              HD         = 1280,
              VD         = 1024;
   enum bit [1:0] {
-    WHITE,
     BLACK,
+    WHITE,
     BLUE,
     GREEN
   } color_type;
@@ -78,8 +78,8 @@ module vga_top(
     case( video_buffer_pixel_ff )
       BLACK: color_ff <= { 12{1'b0} };
       WHITE: color_ff <= { 12{1'b1} };
-      BLUE: color_ff <= { { 4{1'b1} }, { 8{1'b0} } };
-      GREEN  : color_ff <= { { 4{1'b0} }, { 4{1'b1} }, { 4{1'b0} } };
+      BLUE : color_ff <= { { 4{1'b1} }, { 8{1'b0} } };
+      GREEN: color_ff <= { { 4{1'b0} }, { 4{1'b1} }, { 4{1'b0} } };
     endcase
 
 
