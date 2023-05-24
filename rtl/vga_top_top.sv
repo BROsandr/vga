@@ -2,6 +2,7 @@
 
 module vga_top_top(
   input clk_i, arstn_i,
+  input [1:0] sw,
   
   output VGA_HS_o, VGA_VS_o,
   output [11:0] RGB_o,
@@ -14,11 +15,11 @@ module vga_top_top(
   
   logic [1:0]       color;
   
-  assign       color = 2'd2;
-  
-  logic        init_ff;
+  assign       color = sw;
   
   logic        we_ff;
+  
+  assign we_ff = 1;
 
   vga_top vga_top(
     .clk_i( clk_i ), .arstn_i( arstn_i ),
@@ -31,16 +32,10 @@ module vga_top_top(
     .RGB_o( RGB_o ),
     .LED_o( LED_o )
   );
-  
-  always_ff @( posedge clk_i or negedge arstn_i )
-    if( ~arstn_i ) init_ff <= 1'b1;
-    else if( addr_y_ff >= 11'd1024 ) init_ff <= 1'b0;
-    
-  always_ff @( posedge clk_i )
-    we_ff <= init_ff;
     
   always_ff @( posedge clk_i or negedge arstn_i )
     if( ~arstn_i ) addr_y_ff <= '0;
-    else if( we_ff ) addr_y_ff <= addr_y_ff + 1'd1;
+    else if( addr_y_ff < 11'd1024 ) addr_y_ff <= addr_y_ff + 1'd1;
+    else addr_y_ff <= '0;
 
 endmodule
