@@ -52,7 +52,7 @@ module vga
   ////////////////////////////////
   //    HORIZONTAL COUNTER      //
   ////////////////////////////////
-  always @ (posedge clk or posedge arstn) begin
+  always @ (posedge clk or negedge arstn) begin
       if (!arstn == 1'b1) begin
           hcount <= 0;
       end
@@ -67,7 +67,7 @@ module vga
   ////////////////////////////////
   //     VERTICAL COUNTER       //
   ////////////////////////////////
-  always @ (posedge clk or posedge arstn) begin
+  always @ (posedge clk or negedge arstn) begin
       if (!arstn == 1'b1) vcount <= 0;
       else begin
           if (hcount == HMAX) begin
@@ -85,7 +85,7 @@ module vga
   assign vsync_next = (vcount < VR) ? 1'b1 : 1'b0;
   
   // Horizontal and Vertical sync signal generator
-  always @ (posedge clk or posedge arstn) begin
+  always @ (posedge clk or negedge arstn) begin
       if (!arstn) begin
           hsync_ff <= 1'b0;
           vsync_ff <= 1'b0;
@@ -104,7 +104,7 @@ module vga
   //         RGB Signals        //
   ////////////////////////////////
 
-  always @ (posedge clk or posedge arstn) begin
+  always @ (posedge clk or negedge arstn) begin
     if (!arstn)
       rgb_ff <= 1'b0;
     else if(rgb_en)
@@ -118,7 +118,7 @@ module vga
   //         LED Signals        //
   ////////////////////////////////
 
-  always @ (posedge clk or neg arstn) begin
+  always @ (posedge clk or negedge arstn) begin
     if (!arstn)
       rgb_ff <= 1'b0;
     else if(rgb_en)
