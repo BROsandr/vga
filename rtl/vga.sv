@@ -49,6 +49,11 @@ module vga
   logic           vsync_next;
   logic           vsync_en;
   
+  logic [VSYNC_BITS-1:0]    vcount_buff;
+  logic [HSYNC_BITS-1:0]    hcount_buff;
+  logic [1:0]               video_buffer_ff[VD * HD];
+  logic [1:0]               video_buffer_pixel_ff;
+
   ////////////////////////////////
   //    HORIZONTAL COUNTER      //
   ////////////////////////////////
@@ -78,6 +83,18 @@ module vga
   end
 
   ////////////////////////////////
+  //        VIDEO BUFFER        //
+  ////////////////////////////////
+    
+  always_ff @( posedge clk_i ) begin
+    vcount_buff <= vcount - (VR+VB);
+    hcount_buff <= hcount - (HR+HB);
+  end
+
+  always_ff @( posedge clk_i )
+    video_buffer_pixel_ff <= video_buffer_ff[( vcount_buff ) * HD + ( hcount_buff )];
+
+  ////////////////////////////////
   // HORIZONTAL & VERTICAL SYNC //
   ////////////////////////////////
 
@@ -99,31 +116,6 @@ module vga
   // Assigning register values to outputs
   assign VGA_HS = hsync_ff;
   assign VGA_VS = vsync;
-  
-  ////////////////////////////////
-  //         RGB Signals        //
-  ////////////////////////////////
-
-  always @ (posedge clk or negedge arstn) begin
-    if (!arstn)
-      rgb_ff <= 1'b0;
-    else if(rgb_en)
-      rgb_ff <= rgb_next;
-  end
-
-  assign rgb_next = switches;
-  assign RGB = rgb_ff;
-
-  ////////////////////////////////
-  //         LED Signals        //
-  ////////////////////////////////
-
-  always @ (posedge clk or negedge arstn) begin
-    if (!arstn)
-      rgb_ff <= 1'b0;
-    else if(rgb_en)
-      rgb_ff <= rgb_next;
-  end
   
   // Assigning the current switch state to both view which switches are on and output to VGA RGB DAC
   assign LED = switches;
