@@ -14,7 +14,7 @@ module vga
     parameter VR = 3,
     parameter VB = 38,
     parameter VMAX = VD + VF + VR + VB - 1
-)(
+) (
     input clk, arstn,
     
     input [11:0] SW,
@@ -57,6 +57,7 @@ module vga
   ////////////////////////////////
   //    HORIZONTAL COUNTER      //
   ////////////////////////////////
+  
   always @ (posedge clk or negedge arstn) begin
       if (!arstn == 1'b1) begin
           hcount <= 0;
@@ -72,6 +73,7 @@ module vga
   ////////////////////////////////
   //     VERTICAL COUNTER       //
   ////////////////////////////////
+  
   always @ (posedge clk or negedge arstn) begin
       if (!arstn == 1'b1) vcount <= 0;
       else begin
@@ -113,15 +115,10 @@ module vga
       end
   end
   
-  // Assigning register values to outputs
   assign VGA_HS = hsync_ff;
   assign VGA_VS = vsync_ff;
   
   // Assigning the current switch state to both view which switches are on and output to VGA RGB DAC
   assign LED = switches;
-
-  // Buffering switch inputs
-  always @ (posedge clk) 
-    switches <= SW;
   
 endmodule
