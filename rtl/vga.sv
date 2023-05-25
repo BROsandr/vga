@@ -111,7 +111,7 @@ module vga
       rgb_ff <= rgb_next;
   end
 
-  assign rgb_next = (pixel_enable) ? switches : 12'b0;
+  assign rgb_next = switches;
   assign RGB = rgb_ff;
 
   ////////////////////////////////
