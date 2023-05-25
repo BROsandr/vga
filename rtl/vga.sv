@@ -100,15 +100,6 @@ module vga
   assign VGA_HS = hsync_ff;
   assign VGA_VS = vsync;
   
-  always @ (posedge clk or posedge arstn) begin
-    if (!arstn) pixel_enable <= 1'b0;
-    else
-      if (hcount >= (HR+HB) && hcount < (HR+HB+HD) && vcount >= (VR+VB) && vcount < (VR+VB+VD))
-        pixel_enable <= 1'b1;
-      else
-        pixel_enable <= 1'b0;
-  end
-  
   ////////////////////////////////
   //         RGB Signals        //
   ////////////////////////////////
