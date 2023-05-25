@@ -31,7 +31,7 @@ module vga
 );
   
   // Switch state buffer registers
-  reg [11:0] switches;
+  logic [11:0]    switches;
   
   logic [11:0]    rgb_ff;
   logic [11:0]    rgb_next;
