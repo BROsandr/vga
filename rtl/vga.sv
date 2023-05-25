@@ -14,7 +14,7 @@ module vga
     parameter VR = 3,
     parameter VB = 38,
     parameter VMAX = VD + VF + VR + VB - 1
-)(
+) (
     input clk, arstn,
     
     input [11:0] SW,
@@ -37,7 +37,7 @@ module vga
   reg [11:0] switches;
   
   // Horizontal counter
-  always @ (posedge clk or posedge arstn) begin
+  always @ (posedge clk or negedge arstn) begin
       if (!arstn == 1'b1) begin
           hcount <= 0;
       end
@@ -50,7 +50,7 @@ module vga
   end
   
   // Vertical counter
-  always @ (posedge clk or posedge arstn) begin
+  always @ (posedge clk or negedge arstn) begin
       if (!arstn == 1'b1) vcount <= 0;
       else begin
           if (hcount == HMAX) begin
@@ -61,7 +61,7 @@ module vga
   end
   
   // Horizontal and Vertical sync signal generator
-  always @ (posedge clk or posedge arstn) begin
+  always @ (posedge clk or negedge arstn) begin
       if (!arstn) begin
           hsync <= 1'b0;
           vsync <= 1'b0;
@@ -76,7 +76,7 @@ module vga
   assign VGA_HS = hsync;
   assign VGA_VS = vsync;
   
-  always @ (posedge clk or posedge arstn) begin
+  always @ (posedge clk or negedge arstn) begin
     if (!arstn) pixel_enable <= 1'b0;
     else
       if (hcount >= (HR+HB) && hcount < (HR+HB+HD) && vcount >= (VR+VB) && vcount < (VR+VB+VD))
@@ -85,38 +85,11 @@ module vga
         pixel_enable <= 1'b0;
   end
   
-  // RGB Signals
-  logic [11:0]    rgb_ff;
-  logic [11:0]    rgb_next;
-  logic           rgb_en;
-
-  always @ (posedge clk or posedge arstn) begin
-    if (!arstn)
-      rgb_ff <= 1'b0;
-    else if(rgb_en)
-      rgb_ff <= rgb_next;
-  end
-
-  assign rgb_next = (pixel_enable) ? switches : 12'b0;
-  assign RGB = rgb_ff;
-
-  // LED Signals
-  logic [11:0]    led_ff;
-  logic [11:0]    led_next;
-  logic           led_en;
-
-  always @ (posedge clk or neg arstn) begin
-    if (!arstn)
-      rgb_ff <= 1'b0;
-    else if(rgb_en)
-      rgb_ff <= rgb_next;
-  end
-  
-  // Assigning the current switch state to both view which switches are on and output to VGA RGB DAC
-  assign LED = switches;
-
   // Buffering switch inputs
   always @ (posedge clk) 
     switches <= SW;
   
+  // Assigning the current switch state to both view which switches are on and output to VGA RGB DAC
+  assign LED = switches;
+  assign RGB = (pixel_enable) ? switches : 12'b0;
 endmodule
