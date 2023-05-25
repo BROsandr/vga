@@ -81,9 +81,6 @@ module vga
   // HORIZONTAL & VERTICAL SYNC //
   ////////////////////////////////
 
-  // Sync signal registers, vertical counter enable register, and pixel enable register
-  reg hsync = 0, vsync = 0;
-
   assign hsync_next = (hcount < HR) ? 1'b1 : 1'b0;
   assign vsync_next = (vcount < VR) ? 1'b1 : 1'b0;
   
