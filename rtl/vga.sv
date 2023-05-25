@@ -30,9 +30,6 @@ module vga
 
 );
   
-  // Sync signal registers, vertical counter enable register, and pixel enable register
-  reg hsync = 0, vsync = 0;
-  
   // Switch state buffer registers
   reg [11:0] switches;
   
@@ -59,21 +56,38 @@ module vga
           end
       end
   end
+
+  ////////////////////////////////
+  // HORIZONTAL & VERTICAL SYNC //
+  ////////////////////////////////
+
+  // Sync signal registers, vertical counter enable register, and pixel enable register
+  reg hsync = 0, vsync = 0;
+  logic hsync_ff;
+  logic hsync_next;
+  logic hsync_en;
+  
+  logic vsync_ff;
+  logic vsync_next;
+  logic vsync_en;
+
+  assign hsync_next = (hcount < HR) ? 1'b1 : 1'b0;
+  assign vsync_next = (vcount < VR) ? 1'b1 : 1'b0;
   
   // Horizontal and Vertical sync signal generator
   always @ (posedge clk or posedge arstn) begin
       if (!arstn) begin
-          hsync <= 1'b0;
-          vsync <= 1'b0;
+          hsync_ff <= 1'b0;
+          vsync_ff <= 1'b0;
       end
       else begin
-          hsync <= (hcount < HR) ? 1'b1 : 1'b0;
-          vsync <= (vcount < VR) ? 1'b1 : 1'b0;
+          hsync_ff <= hsync_next;
+          vsync_ff <= vsync_next;
       end
   end
   
   // Assigning register values to outputs
-  assign VGA_HS = hsync;
+  assign VGA_HS = hsync_ff;
   assign VGA_VS = vsync;
   
   always @ (posedge clk or posedge arstn) begin
