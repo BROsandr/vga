@@ -115,7 +115,7 @@ module vga
   
   // Assigning register values to outputs
   assign VGA_HS = hsync_ff;
-  assign VGA_VS = vsync;
+  assign VGA_VS = vsync_ff;
   
   // Assigning the current switch state to both view which switches are on and output to VGA RGB DAC
   assign LED = switches;
