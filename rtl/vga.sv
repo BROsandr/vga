@@ -33,6 +33,22 @@ module vga
   // Switch state buffer registers
   reg [11:0] switches;
   
+  logic [11:0]    rgb_ff;
+  logic [11:0]    rgb_next;
+  logic           rgb_en;
+
+  logic [11:0]    led_ff;
+  logic [11:0]    led_next;
+  logic           led_en;
+
+  logic           hsync_ff;
+  logic           hsync_next;
+  logic           hsync_en;
+  
+  logic           vsync_ff;
+  logic           vsync_next;
+  logic           vsync_en;
+  
   ////////////////////////////////
   //    HORIZONTAL COUNTER      //
   ////////////////////////////////
@@ -67,13 +83,6 @@ module vga
 
   // Sync signal registers, vertical counter enable register, and pixel enable register
   reg hsync = 0, vsync = 0;
-  logic hsync_ff;
-  logic hsync_next;
-  logic hsync_en;
-  
-  logic vsync_ff;
-  logic vsync_next;
-  logic vsync_en;
 
   assign hsync_next = (hcount < HR) ? 1'b1 : 1'b0;
   assign vsync_next = (vcount < VR) ? 1'b1 : 1'b0;
@@ -106,9 +115,6 @@ module vga
   ////////////////////////////////
   //         RGB Signals        //
   ////////////////////////////////
-  logic [11:0]    rgb_ff;
-  logic [11:0]    rgb_next;
-  logic           rgb_en;
 
   always @ (posedge clk or posedge arstn) begin
     if (!arstn)
@@ -123,9 +129,6 @@ module vga
   ////////////////////////////////
   //         LED Signals        //
   ////////////////////////////////
-  logic [11:0]    led_ff;
-  logic [11:0]    led_next;
-  logic           led_en;
 
   always @ (posedge clk or neg arstn) begin
     if (!arstn)
