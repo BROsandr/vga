@@ -33,7 +33,9 @@ module vga
   // Switch state buffer registers
   reg [11:0] switches;
   
-  // Horizontal counter
+  ////////////////////////////////
+  //    HORIZONTAL COUNTER      //
+  ////////////////////////////////
   always @ (posedge clk or posedge arstn) begin
       if (!arstn == 1'b1) begin
           hcount <= 0;
@@ -46,7 +48,9 @@ module vga
       end
   end
   
-  // Vertical counter
+  ////////////////////////////////
+  //     VERTICAL COUNTER       //
+  ////////////////////////////////
   always @ (posedge clk or posedge arstn) begin
       if (!arstn == 1'b1) vcount <= 0;
       else begin
@@ -99,7 +103,9 @@ module vga
         pixel_enable <= 1'b0;
   end
   
-  // RGB Signals
+  ////////////////////////////////
+  //         RGB Signals        //
+  ////////////////////////////////
   logic [11:0]    rgb_ff;
   logic [11:0]    rgb_next;
   logic           rgb_en;
@@ -114,7 +120,9 @@ module vga
   assign rgb_next = (pixel_enable) ? switches : 12'b0;
   assign RGB = rgb_ff;
 
-  // LED Signals
+  ////////////////////////////////
+  //         LED Signals        //
+  ////////////////////////////////
   logic [11:0]    led_ff;
   logic [11:0]    led_next;
   logic           led_en;
