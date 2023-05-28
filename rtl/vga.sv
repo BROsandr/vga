@@ -61,7 +61,9 @@ module vga #(
 
   logic [          11:0] color_ff;
   logic [HSYNC_BITS-1:0] hcount;
+  logic                  hcount_en;
   logic [VSYNC_BITS-1:0] vcount;
+  logic                  vcount_en;
 
   logic [VSYNC_BITS-1:0] vcount_buff;
   logic [HSYNC_BITS-1:0] hcount_buff;
@@ -70,28 +72,24 @@ module vga #(
   //    HORIZONTAL COUNTER      //
   ////////////////////////////////
 
+  assign hcount_en = (hcount < HMAX);
+
   always @(posedge clk or negedge arstn) begin
-    if (!arstn == 1'b1) begin
-      hcount <= 0;
-    end else if (hcount < HMAX) begin
-      hcount <= hcount + 1;
-    end else begin
-      hcount <= 0;
-    end
+    if (!arstn == 1'b1) hcount <= 0;
+    else if (hcount_en) hcount <= hcount + 1;
+    else hcount <= 0;
   end
 
   ////////////////////////////////
   //     VERTICAL COUNTER       //
   ////////////////////////////////
 
+  assign vcount_en = (hcount == HMAX && vcount < VMAX);
+
   always @(posedge clk or negedge arstn) begin
     if (!arstn == 1'b1) vcount <= 0;
-    else begin
-      if (hcount == HMAX) begin
-        if (vcount < VMAX) vcount <= vcount + 1;
-        else vcount <= 0;
-      end
-    end
+    else if (vcount_en) vcount <= vcount + 1;
+    else vcount <= 0;
   end
 
   ////////////////////////////////
