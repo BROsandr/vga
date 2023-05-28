@@ -122,6 +122,7 @@ module vga #(
 
   // Assigning the current switch state to both view which switches are on and output to VGA RGB DAC
   assign LED = switches;
+  assign RGB = (pixel_en_ff) ? switches : 12'b0;
 
   ////////////////////////////////
   //        VIDEO BUFFER        //
