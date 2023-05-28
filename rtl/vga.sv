@@ -23,12 +23,6 @@ module vga #(
     VGA_VS,
     output [11:0] RGB,
     output [11:0] LED,
-
-    // Display timing counters
-    output reg [HSYNC_BITS-1:0] hcount,
-    output reg [VSYNC_BITS-1:0] vcount,
-    output reg pixel_enable
-
 );
 
   // Switch state buffer registers
