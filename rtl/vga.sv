@@ -55,6 +55,23 @@ module vga #(
   logic [           1:0] video_buffer_ff       [VD * HD];
   logic [           1:0] video_buffer_pixel_ff;
 
+  logic                  pixel_en_ff;
+  logic                  pixel_en;
+  logic                  pixel_en_next;
+
+  logic [           1:0] video_buffer_ff       [VD * HD];
+  logic [           1:0] video_buffer_next     [VD * HD];
+  logic                  video_buffer_en;
+
+  logic [           1:0] video_buffer_pixel_ff;
+
+  logic [          11:0] color_ff;
+  logic [HSYNC_BITS-1:0] hcount;
+  logic [VSYNC_BITS-1:0] vcount;
+
+  logic [VSYNC_BITS-1:0] vcount_buff;
+  logic [HSYNC_BITS-1:0] hcount_buff;
+
   ////////////////////////////////
   //    HORIZONTAL COUNTER      //
   ////////////////////////////////
@@ -86,10 +103,6 @@ module vga #(
   ////////////////////////////////
   //        PIXEL ENABLE        //
   ////////////////////////////////
-
-  logic pixel_en_ff;
-  logic pixel_en;
-  logic pixel_en_next;
 
   assign pixel_en = hcount >= (HR+HB) && hcount < (HR+HB+HD) && vcount >= (VR+VB) && vcount < (VR+VB+VD);
   assign pixel_en_next = pixel_en ? 1'b1 : 1'b0;
@@ -128,25 +141,12 @@ module vga #(
   //        VIDEO BUFFER        //
   ////////////////////////////////
 
-  logic [1:0] video_buffer_ff       [VD * HD];
-  logic [1:0] video_buffer_next     [VD * HD];
-  logic       video_buffer_en;
-
-  logic [1:0] video_buffer_pixel_ff;
-
-  assign video_buffer_en   = we_i;
+  assign video_buffer_en = we_i;
   assign video_buffer_next = color_i;
 
-  always_ff @(posedge clk_i)
-    if (video_buffer_en)
-      video_buffer_ff[addr_x_i*HD+addr_y_i] <= video_buffer_next;
-
-  logic [11:0] color_ff;
-  logic [HSYNC_BITS-1:0] hcount;
-  logic [VSYNC_BITS-1:0] vcount;
-
-  logic [VSYNC_BITS-1:0] vcount_buff;
-  logic [HSYNC_BITS-1:0] hcount_buff;
+  always_ff @(posedge clk_i or negedge arstn)
+    if (!arstn) video_buffer_ff <= '0;  // TODO: Check zero reset assining is right
+    else if (video_buffer_en) video_buffer_ff[addr_x_i*HD+addr_y_i] <= video_buffer_next;
 
   always_ff @(posedge clk_i) begin
     vcount_buff <= vcount - (VR + VB);
