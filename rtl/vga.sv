@@ -92,11 +92,15 @@ module vga #(
   //     VERTICAL COUNTER       //
   ////////////////////////////////
 
-  assign vcount_en = (hcount == HMAX && vcount < VMAX);
+  assign vcount_en = (vcount < VMAX);
 
   always @(posedge clk or negedge arstn) begin
     if (!arstn == 1'b1) vcount <= 0;
-    else if (vcount_en) vcount <= vcount + 1;
+    else if (hcount == HMAX)
+    begin
+    if(vcount_en) vcount <= vcount + 1;
+    else vcount <= 0;
+    end
     else vcount <= 0;
   end
 
