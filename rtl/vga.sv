@@ -16,7 +16,10 @@ module vga #(
 ) (
     input           clk, arstn,
 
-    input   [11:0]  SW,
+    input   [1:0]   color_i,
+    input           we_i,
+    input   [10:0]  addr_x_i,
+    input   [10:0]  addr_y_i,
 
     output          VGA_HS, VGA_VS,
     output  [11:0]  RGB,
@@ -59,7 +62,7 @@ module vga #(
   logic                  pixel_en_next;
 
   logic [           1:0] video_buffer_ff       [VD * HD];
-  logic [           1:0] video_buffer_next     [VD * HD];
+  logic [           1:0] video_buffer_next;
   logic                  video_buffer_en;
 
   logic [           1:0] video_buffer_pixel_ff;
@@ -131,6 +134,7 @@ module vga #(
   assign VGA_VS = vsync_ff;
 
   // Assigning the current switch state to both view which switches are on and output to VGA RGB DAC
+  assign switches = color_ff;
   assign LED = switches;
   assign RGB = (pixel_en_ff) ? switches : 12'b0;
 
@@ -139,21 +143,29 @@ module vga #(
   ////////////////////////////////
 
   assign video_buffer_en = we_i;
-  assign video_buffer_next = color_i;
+  assign video_buffer_next[0] = color_i;
 
-  always_ff @(posedge clk_i or negedge arstn)
-    if (!arstn) video_buffer_ff <= '0;  // TODO: Check zero reset assining is right
-    else if (video_buffer_en) video_buffer_ff[addr_x_i*HD+addr_y_i] <= video_buffer_next;
+  generate;
+    for (genvar i = 0; i < VD * HD; i++)
+    begin
+      always_ff @(posedge clk or negedge arstn)
+        if (!arstn)
+          video_buffer_ff[i] <= '0;  // TODO: Check zero reset assining is right
+    end
+  endgenerate
 
-  always_ff @(posedge clk_i) begin
+  always_ff @(posedge clk or negedge arstn)
+    if (arstn && video_buffer_en) video_buffer_ff[addr_x_i*HD+addr_y_i] <= video_buffer_next;
+
+  always_ff @(posedge clk) begin
     vcount_buff <= vcount - (VR + VB);
     hcount_buff <= hcount - (HR + HB);
   end
 
-  always_ff @(posedge clk_i)
+  always_ff @(posedge clk)
     video_buffer_pixel_ff <= video_buffer_ff[(vcount_buff)*HD+(hcount_buff)];
 
-  always_ff @(posedge clk_i)
+  always_ff @(posedge clk)
     case (video_buffer_pixel_ff)
       BLACK: color_ff <= {12{1'b0}};
       WHITE: color_ff <= {12{1'b1}};
