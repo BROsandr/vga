@@ -26,15 +26,15 @@ module vga_top(
   
   logic                  pixel_enable;
   
-    parameter HF = 48;                      // Front porch
-    parameter HR = 112;                     // Retrace/Sync
-    parameter HB = 248;                     // Back Porch
-    parameter HMAX = HD + HF + HR + HB - 1; // MAX counter value
-    
-    parameter VF = 1;
-    parameter VR = 3;
-    parameter VB = 38;
-    parameter VMAX = VD + VF + VR + VB - 1;
+  parameter HF = 48;                      // Front porch
+  parameter HR = 112;                     // Retrace/Sync
+  parameter HB = 248;                     // Back Porch
+  parameter HMAX = HD + HF + HR + HB - 1; // MAX counter value
+  
+  parameter VF = 1;
+  parameter VR = 3;
+  parameter VB = 38;
+  parameter VMAX = VD + VF + VR + VB - 1;
 
   vga #(
     .HSYNC_BITS( HSYNC_BITS ),
