@@ -27,6 +27,10 @@ module vga_top(
     .arstn( arstn_i ),
     .VGA_HS( VGA_HS_o ),
     .VGA_VS( VGA_VS_o ),
+    .color_i(color_i),
+    .addr_x_i(addr_x_i),
+    .addr_y_i(addr_y_i),
+    .we_i(we_i),
     .RGB( RGB_o ),
     .LED( LED_o )
   );
