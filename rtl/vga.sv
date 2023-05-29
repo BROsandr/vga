@@ -25,6 +25,13 @@ module vga #(
     output [11:0] LED,
 );
 
+  enum bit [1:0] {
+    BLACK,
+    WHITE,
+    BLUE,
+    GREEN
+  } color_type;
+
   // Switch state buffer registers
   logic [          11:0] switches;
 
