@@ -49,38 +49,6 @@ module vga_top(
     .VGA_HS( VGA_HS_o ), .VGA_VS( VGA_VS_o ),
     .RGB( RGB_o ),
     .LED( LED_o ),
-    
-    .hcount( hcount ),
-    .vcount( vcount ),
-    .pixel_enable( pixel_enable )
   );
-
-  logic [1:0] video_buffer_ff[VD * HD];
-  
-  logic [1:0] video_buffer_pixel_ff;
-  
-  always_ff @( posedge clk_i ) 
-    if( we_i )  video_buffer_ff[addr_x_i * HD + addr_y_i] <= color_i;
-  
-  logic [VSYNC_BITS-1:0] vcount_buff;
-  logic [HSYNC_BITS-1:0] hcount_buff ;
-    
-  always_ff @( posedge clk_i ) begin
-    vcount_buff <= vcount - (VR+VB);
-    hcount_buff <= hcount - (HR+HB);
-  end
-    
-  always_ff @( posedge clk_i )
-    video_buffer_pixel_ff <= video_buffer_ff[( vcount_buff ) * HD + ( hcount_buff )];
-//    video_buffer_pixel_ff <= video_buffer_ff[( vcount ) * HD + ( hcount )];
-  
-  always_ff @( posedge clk_i )
-    case( video_buffer_pixel_ff )
-      BLACK: color_ff <= { 12{1'b0} };
-      WHITE: color_ff <= { 12{1'b1} };
-      BLUE : color_ff <= { { 4{1'b1} }, { 8{1'b0} } };
-      GREEN: color_ff <= { { 4{1'b0} }, { 4{1'b1} }, { 4{1'b0} } };
-    endcase
-
 
 endmodule
