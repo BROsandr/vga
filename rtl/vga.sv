@@ -145,6 +145,7 @@ module vga #(
   assign video_buffer_en = we_i;
   assign video_buffer_next[0] = color_i;
 
+  /*
   generate;
     for (genvar i = 0; i < VD * HD; i++)
     begin
@@ -153,6 +154,7 @@ module vga #(
           video_buffer_ff[i] <= '0;  // TODO: Check zero reset assining is right
     end
   endgenerate
+  */
 
   always_ff @(posedge clk or negedge arstn)
     if (arstn && video_buffer_en) video_buffer_ff[addr_x_i*HD+addr_y_i] <= video_buffer_next;
