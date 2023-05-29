@@ -14,15 +14,13 @@ module vga #(
     parameter VB   = 38,
     parameter VMAX = VD + VF + VR + VB - 1
 ) (
-    input clk,
-    arstn,
+    input           clk, arstn,
 
-    input [11:0] SW,
+    input   [11:0]  SW,
 
-    output VGA_HS,
-    VGA_VS,
-    output [11:0] RGB,
-    output [11:0] LED,
+    output          VGA_HS, VGA_VS,
+    output  [11:0]  RGB,
+    output  [11:0]  LED
 );
 
   enum bit [1:0] {
