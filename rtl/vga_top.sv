@@ -2,10 +2,12 @@ module vga_top(
   input clk_i, arstn_i,
   
   output VGA_HS_o, VGA_VS_o,
-  input [1:0]  color_i,
   input [10:0] addr_x_i,
   input [10:0] addr_y_i,
+
+  input [1:0]  color_i,
   input        we_i,
+
   output [11:0] RGB_o,
   output [11:0] LED_o
 );
@@ -22,9 +24,6 @@ module vga_top(
     .VD( VD )
   ) vga(
     .clk( clk_i ), .arstn( arstn_i ),
-    
-    .SW( color_ff ),
-    
     .VGA_HS( VGA_HS_o ), .VGA_VS( VGA_VS_o ),
     .RGB( RGB_o ),
     .LED( LED_o ),
