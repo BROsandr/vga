@@ -23,10 +23,12 @@ module vga_top(
     .HD( HD ),
     .VD( VD )
   ) vga(
-    .clk( clk_i ), .arstn( arstn_i ),
-    .VGA_HS( VGA_HS_o ), .VGA_VS( VGA_VS_o ),
+    .clk( clk_i ),
+    .arstn( arstn_i ),
+    .VGA_HS( VGA_HS_o ),
+    .VGA_VS( VGA_VS_o ),
     .RGB( RGB_o ),
-    .LED( LED_o ),
+    .LED( LED_o )
   );
 
 endmodule
