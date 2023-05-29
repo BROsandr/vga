@@ -13,18 +13,6 @@ module vga_top(
              VSYNC_BITS = 11,
              HD         = 1280,
              VD         = 1024;
-  enum bit [1:0] {
-    BLACK,
-    WHITE,
-    BLUE,
-    GREEN
-  } color_type;
-
-  logic [11:0] color_ff;
-  logic [HSYNC_BITS-1:0] hcount;
-  logic [VSYNC_BITS-1:0] vcount;
-  
-  logic                  pixel_enable;
   
   parameter HF = 48;                      // Front porch
   parameter HR = 112;                     // Retrace/Sync
