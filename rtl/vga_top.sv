@@ -2,7 +2,7 @@
 
 module vga_top(
   input clk_i, arstn_i,
-  input [1:0] sw,
+  input [11:0] sw,
   
   output VGA_HS_o, VGA_VS_o,
   output [11:0] RGB_o,
@@ -19,7 +19,7 @@ module vga_top(
   
   logic        we_ff;
   
-  assign we_ff = 1;
+  assign we_ff = !sw[2];
 
   localparam HSYNC_BITS = 11,
              VSYNC_BITS = 11,
@@ -46,7 +46,9 @@ module vga_top(
     
   always_ff @( posedge clk_i or negedge arstn_i )
     if( ~arstn_i ) addr_y_ff <= '0;
-    else if( addr_y_ff < 11'd1024 ) addr_y_ff <= addr_y_ff + 1'd1;
-    else addr_y_ff <= '0;
+    else begin
+      if( addr_y_ff < 11'd1024 ) addr_y_ff <= addr_y_ff + 1'd1;
+      else addr_y_ff <= '0;
+    end
 
 endmodule
