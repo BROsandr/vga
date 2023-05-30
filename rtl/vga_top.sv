@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module vga_top_top(
+module vga_top(
   input clk_i, arstn_i,
   input [1:0] sw,
   
