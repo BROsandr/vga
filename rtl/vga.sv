@@ -33,9 +33,6 @@ module vga #(
     GREEN
   } color_type;
 
-  // Switch state buffer registers
-  logic [          11:0] switches;
-
   logic [          11:0] rgb_ff;
   logic [          11:0] rgb_next;
   logic                  rgb_en;
@@ -141,9 +138,8 @@ module vga #(
   assign VGA_VS = vsync_ff;
 
   // Assigning the current switch state to both view which switches are on and output to VGA RGB DAC
-  assign switches = color_ff;
-  assign LED = switches;
-  assign RGB = (pixel_en_ff) ? switches : 12'b0;
+  assign LED = color_ff;
+  assign RGB = (pixel_en_ff) ? color_ff : 12'b0;
 
   ////////////////////////////////
   //        VIDEO BUFFER        //
