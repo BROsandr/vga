@@ -96,12 +96,13 @@ module vga #(
 
   always @(posedge clk or negedge arstn) begin
     if (!arstn == 1'b1) vcount <= 0;
-    else if (hcount == HMAX)
-    begin
-    if(vcount_en) vcount <= vcount + 1;
-    else vcount <= 0;
+    else begin
+      if (hcount == HMAX)
+      begin
+        if(vcount_en) vcount <= vcount + 1;
+          else vcount <= 0;
+      end
     end
-    else vcount <= 0;
   end
 
   ////////////////////////////////
