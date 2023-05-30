@@ -150,7 +150,7 @@ module vga #(
   ////////////////////////////////
 
   assign video_buffer_en = we_i;
-  assign video_buffer_next[0] = color_i;
+  assign video_buffer_next = color_i;
 
   /*
   generate;
@@ -162,9 +162,9 @@ module vga #(
     end
   endgenerate
   */
-
-  always_ff @(posedge clk or negedge arstn)
-    if (arstn && video_buffer_en) video_buffer_ff[addr_x_i*HD+addr_y_i] <= video_buffer_next;
+  
+  always_ff @(posedge clk)
+    if (video_buffer_en) video_buffer_ff[addr_x_i * HD + addr_y_i] <= video_buffer_next;
 
   always_ff @(posedge clk) begin
     vcount_buff <= vcount - (VR + VB);
