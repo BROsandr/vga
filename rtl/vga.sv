@@ -84,8 +84,10 @@ module vga #(
 
   always @(posedge clk or negedge arstn) begin
     if (!arstn == 1'b1) hcount <= 0;
-    else if (hcount_en) hcount <= hcount + 1;
-    else hcount <= 0;
+    else begin
+      if (hcount_en) hcount <= hcount + 1;
+      else hcount <= 0;
+    end
   end
 
   ////////////////////////////////
