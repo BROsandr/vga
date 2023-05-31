@@ -1,86 +1,54 @@
+`timescale 1ns / 1ps
+
 module vga_top(
   input clk_i, arstn_i,
+  input [11:0] sw,
   
   output VGA_HS_o, VGA_VS_o,
-  input [1:0]  color_i,
-  input [10:0] addr_x_i,
-  input [10:0] addr_y_i,
-  input        we_i,
   output [11:0] RGB_o,
   output [11:0] LED_o
 );
+
+  logic [10:0] addr_x, addr_y_ff;
+  
+  assign addr_x = 11'd1000;
+  
+  logic [1:0]       color;
+  
+  assign       color = sw;
+  
+  logic        we_ff;
+  
+  assign we_ff = !sw[2];
+
   localparam HSYNC_BITS = 11,
              VSYNC_BITS = 11,
              HD         = 1280,
              VD         = 1024;
-  enum bit [1:0] {
-    BLACK,
-    WHITE,
-    BLUE,
-    GREEN
-  } color_type;
-
-  logic [11:0] color_ff;
-  logic [HSYNC_BITS-1:0] hcount;
-  logic [VSYNC_BITS-1:0] vcount;
-  
-  logic                  pixel_enable;
-  
-    parameter HF = 48;                      // Front porch
-    parameter HR = 112;                     // Retrace/Sync
-    parameter HB = 248;                     // Back Porch
-    parameter HMAX = HD + HF + HR + HB - 1; // MAX counter value
-    
-    parameter VF = 1;
-    parameter VR = 3;
-    parameter VB = 38;
-    parameter VMAX = VD + VF + VR + VB - 1;
 
   vga #(
     .HSYNC_BITS( HSYNC_BITS ),
     .VSYNC_BITS( VSYNC_BITS ),
     .HD( HD ),
     .VD( VD )
-  ) vga(
-    .clk( clk_i ), .arstn( arstn_i ),
-    
-    .SW( color_ff ),
-    
-    .VGA_HS( VGA_HS_o ), .VGA_VS( VGA_VS_o ),
+  ) vga (
+    .clk( clk_i ),
+    .arstn( arstn_i ),
+    .VGA_HS( VGA_HS_o ),
+    .VGA_VS( VGA_VS_o ),
+    .color_i(color),
+    .addr_x_i(addr_x),
+    .addr_y_i(addr_y_ff),
+    .we_i(we_ff),
     .RGB( RGB_o ),
-    .LED( LED_o ),
-    
-    .hcount( hcount ),
-    .vcount( vcount ),
-    .pixel_enable( pixel_enable )
+    .LED( LED_o )
   );
-
-  logic [1:0] video_buffer_ff[VD * HD];
-  
-  logic [1:0] video_buffer_pixel_ff;
-  
-  always_ff @( posedge clk_i ) 
-    if( we_i )  video_buffer_ff[addr_x_i * HD + addr_y_i] <= color_i;
-  
-  logic [VSYNC_BITS-1:0] vcount_buff;
-  logic [HSYNC_BITS-1:0] hcount_buff ;
     
-  always_ff @( posedge clk_i ) begin
-    vcount_buff <= vcount - (VR+VB);
-    hcount_buff <= hcount - (HR+HB);
-  end
-    
-  always_ff @( posedge clk_i )
-    video_buffer_pixel_ff <= video_buffer_ff[( vcount_buff ) * HD + ( hcount_buff )];
-//    video_buffer_pixel_ff <= video_buffer_ff[( vcount ) * HD + ( hcount )];
-  
-  always_ff @( posedge clk_i )
-    case( video_buffer_pixel_ff )
-      BLACK: color_ff <= { 12{1'b0} };
-      WHITE: color_ff <= { 12{1'b1} };
-      BLUE : color_ff <= { { 4{1'b1} }, { 8{1'b0} } };
-      GREEN: color_ff <= { { 4{1'b0} }, { 4{1'b1} }, { 4{1'b0} } };
-    endcase
-
+  always_ff @( posedge clk_i or negedge arstn_i )
+    if( ~arstn_i ) addr_y_ff <= '0;
+    else begin
+      if( addr_y_ff < 11'd1024 ) addr_y_ff <= addr_y_ff + 1'd1;
+      else addr_y_ff <= '0;
+    end
 
 endmodule
