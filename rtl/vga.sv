@@ -81,7 +81,7 @@ module vga #(
   assign hcount_en = ( hcount < HMAX );
 
   always @(posedge clk or negedge arstn) begin
-    if ( !arstn == 1'b1 ) hcount <= 0;
+    if ( !arstn ) hcount <= 0;
     else begin
       if ( hcount_en ) hcount <= hcount + 1;
       else hcount <= 0;
@@ -95,7 +95,7 @@ module vga #(
   assign vcount_en = ( vcount < VMAX );
 
   always @(posedge clk or negedge arstn) begin
-    if ( !arstn == 1'b1 ) vcount <= 0;
+    if ( !arstn ) vcount <= 0;
     else begin
       if ( hcount == HMAX )
       begin
