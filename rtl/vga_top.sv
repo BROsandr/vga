@@ -42,17 +42,19 @@ module vga_top(
     .HD( HD ),
     .VD( VD )
   ) vga(
-    .clk( clk_i ), .arstn( arstn_i ),
+    .clk_i  ( clk_i   ), 
+    .arstn_i( arstn_i ),
     
-    .SW( color_ff ),
+    .sw_i( color_ff ),
     
-    .VGA_HS( VGA_HS_o ), .VGA_VS( VGA_VS_o ),
-    .RGB( RGB_o ),
-    .LED( LED_o ),
+    .vga_hs_o( VGA_HS_o ), 
+    .vga_vs_o( VGA_VS_o ),
+    .rgb_o( RGB_o ),
+    .led_o( LED_o ),
     
-    .hcount( hcount ),
-    .vcount( vcount ),
-    .pixel_enable( pixel_enable )
+    .hcount_o( hcount ),
+    .vcount_o( vcount ),
+    .pixel_enable_o( pixel_enable )
   );
 
   logic [1:0] video_buffer_ff[VD * HD];
