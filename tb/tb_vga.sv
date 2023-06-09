@@ -27,10 +27,12 @@ module tb_vga(
 logic VGA_HS, VGA_VS;
 logic [11:0] RGB, LED;
 
-logic clk, arstn;	
+logic clk, arstn;
+logic [1:0] sw;
     
   vga_top_top vga_top_top(
     .clk_i( clk ), .arstn_i( arstn ),
+    .sw( sw ),
 
     .VGA_HS_o( VGA_HS ), .VGA_VS_o( VGA_VS ),
     .RGB_o( RGB ),
@@ -43,6 +45,8 @@ logic clk, arstn;
           #10 clk <= ~clk;
         end
     end
+    
+    assign sw = 2'b11;
     
     initial begin
       arstn <= 0;

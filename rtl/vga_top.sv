@@ -1,4 +1,6 @@
-module vga_top(
+module vga_top
+  import vga_pkg::*;
+(
   input clk_i, arstn_i,
   
   output VGA_HS_o, VGA_VS_o,
@@ -21,8 +23,8 @@ module vga_top(
   } color_type;
 
   logic [11:0] color_ff;
-  logic [HSYNC_BITS-1:0] hcount;
-  logic [VSYNC_BITS-1:0] vcount;
+  logic [VGA_MAX_H_WIDTH-1:0] hcount;
+  logic [VGA_MAX_V_WIDTH-1:0] vcount;
   
   logic                  pixel_enable;
   
@@ -36,12 +38,7 @@ module vga_top(
     parameter VB = 38;
     parameter VMAX = VD + VF + VR + VB - 1;
 
-  vga #(
-    .HSYNC_BITS( HSYNC_BITS ),
-    .VSYNC_BITS( VSYNC_BITS ),
-    .HD( HD ),
-    .VD( VD )
-  ) vga(
+  vga vga(
     .clk_i  ( clk_i   ), 
     .arstn_i( arstn_i ),
     
@@ -51,6 +48,18 @@ module vga_top(
     .vga_vs_o( VGA_VS_o ),
     .rgb_o( RGB_o ),
     .led_o( LED_o ),
+    
+    .hd_i( HD ),
+    .hf_i( HF ),
+    .hr_i( HR ),
+    .hb_i( HB ),
+         
+    .vd_i( VD ),
+    .vf_i( VF ),
+    .vr_i( VR ),
+    .vb_i( VB ),
+    
+    .we_i( 1'b1 ),
     
     .hcount_o( hcount ),
     .vcount_o( vcount ),
