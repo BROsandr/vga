@@ -1,10 +1,10 @@
 module vga_res_mem
-  import vga_pkg::*
+  import vga_pkg::*;
 (
   input  logic clk_i,
   input  logic arstn_i,
 
-  input  resolution_t resolution_i,
+  input  resolution_e resolution_i,
   input  logic        req_i,
 
   output logic [VGA_MAX_H_WIDTH-1:0] hd_o,
@@ -40,6 +40,12 @@ module vga_res_mem
   logic [VGA_MAX_V_WIDTH-1:0] vr_next;
   logic [VGA_MAX_V_WIDTH-1:0] vb_ff;
   logic [VGA_MAX_V_WIDTH-1:0] vb_next;
+  
+  logic [7:0] freq_int_ff;
+  logic [7:0] freq_int_next;
+  
+  logic [7:0] freq_frac_ff;
+  logic [7:0] freq_frac_next;
 
   logic                       valid_ff;
   logic                       valid_next;
@@ -57,40 +63,40 @@ module vga_res_mem
 
     logic [7:0]                 freq_int;
     logic [7:0]                 freq_frac;
-  } resulution_s
+  } resolution_s;
   resolution_s resolution_ff[VGA_RES_NUM];
 
   initial begin
     resolution_s resolution_local_ff;
 
-    resolution_local_ff.hd <= VGA_MAX_H_WIDTH'd800;
-    resolution_local_ff.hf <= VGA_MAX_H_WIDTH'd40;
-    resolution_local_ff.hr <= VGA_MAX_H_WIDTH'd128;
-    resolution_local_ff.hb <= VGA_MAX_H_WIDTH'd88;
+    resolution_local_ff.hd = VGA_MAX_H_WIDTH'('d800);
+    resolution_local_ff.hf = VGA_MAX_H_WIDTH'('d40);
+    resolution_local_ff.hr = VGA_MAX_H_WIDTH'('d128);
+    resolution_local_ff.hb = VGA_MAX_H_WIDTH'('d88);
 
-    resolution_local_ff.vd <= VGA_MAX_V_WIDTH'd600;
-    resolution_local_ff.vf <= VGA_MAX_V_WIDTH'd1;
-    resolution_local_ff.vr <= VGA_MAX_V_WIDTH'd4;
-    resolution_local_ff.vb <= VGA_MAX_V_WIDTH'd23;
+    resolution_local_ff.vd = VGA_MAX_V_WIDTH'('d600);
+    resolution_local_ff.vf = VGA_MAX_V_WIDTH'('d1);
+    resolution_local_ff.vr = VGA_MAX_V_WIDTH'('d4);
+    resolution_local_ff.vb = VGA_MAX_V_WIDTH'('d23);
 
-    resolution_local_ff.freq_int <= 8'd40;
-    resolution_local_ff.freq_frac <= 8'd0;
+    resolution_local_ff.freq_int = 8'd40;
+    resolution_local_ff.freq_frac = 8'd0;
 
-    resulution_ff[VGA_RES_800_600] <= resolution_local_ff;
+    resolution_ff[VGA_RES_800_600] = resolution_local_ff;
   end
 
-  assign hd_next = resolution_ff.hd[resolution_i];
-  assign hf_next = resolution_ff.hf[resolution_i];
-  assign hr_next = resolution_ff.hr[resolution_i];
-  assign hb_next = resolution_ff.hb[resolution_i]; 
+  assign hd_next = resolution_ff[resolution_i].hd;
+  assign hf_next = resolution_ff[resolution_i].hf;
+  assign hr_next = resolution_ff[resolution_i].hr;
+  assign hb_next = resolution_ff[resolution_i].hb; 
 
-  assign vd_next = resolution_ff.vd[resolution_i];
-  assign vf_next = resolution_ff.vf[resolution_i];
-  assign vr_next = resolution_ff.vr[resolution_i];
-  assign vb_next = resolution_ff.vb[resolution_i]; 
+  assign vd_next = resolution_ff[resolution_i].vd;
+  assign vf_next = resolution_ff[resolution_i].vf;
+  assign vr_next = resolution_ff[resolution_i].vr;
+  assign vb_next = resolution_ff[resolution_i].vb; 
 
-  assign freq_int_next = resolution_ff.freq_int[resolution_i];
-  assign freq_frac_next = resolution_ff.freq_frac[resolution_i]; 
+  assign freq_int_next = resolution_ff[resolution_i].freq_int;
+  assign freq_frac_next = resolution_ff[resolution_i].freq_frac; 
 
   always_ff @( posedge clk_i )
     if( req_i ) begin
@@ -125,4 +131,6 @@ module vga_res_mem
 
   assign freq_int_o = freq_int_ff;
   assign freq_frac_o = freq_frac_ff;
+
+  assign valid_o = valid_ff;
 endmodule

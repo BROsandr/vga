@@ -11,5 +11,5 @@ package vga_pkg;
 
 
     VGA_RES_NUM
-  } resulution_t;  
+  } resolution_e;  
 endpackage
