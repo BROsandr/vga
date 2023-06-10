@@ -120,6 +120,8 @@ module vga_clk_gen
     s_axi_araddr  = '0      ;
     s_axi_arvalid = '0       ;
     s_axi_rvalid  = '0      ;
+    
+    valid_o       = '0;
 
     case( state_ff)
       SET_CONFIG_S: begin
