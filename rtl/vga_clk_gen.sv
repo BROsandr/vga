@@ -1,14 +1,14 @@
 module vga_clk_gen
-  import vga_pkg::*
+  import vga_pkg::*;
 (
   input  logic clk_100m_i,
   input  logic arstn_i,
-  input  resolution_e resolution_i,
+  input  vga_resolution_e resolution_i,
   input  logic        req_i,
 
   output logic clk_o,
   output logic valid_o
-)
+);
   typedef struct {
     logic [7:0]                 freq_int;
     logic [9:0]                 freq_frac;
@@ -18,6 +18,7 @@ module vga_clk_gen
   enum { 
     IDLE_S,
     SET_CONFIG_S,
+    WAIT_LOCKED_S,
     APPLY_CONFIG_S,
     VALID_S
   } state_ff, state_next;
@@ -68,10 +69,10 @@ module vga_clk_gen
     divide_local_ff.freq_int = 8'd108;
     divide_local_ff.freq_frac = 10'd0;
 
-    divide_ff[VGA_RES_1280_1028] = divide_local_ff;
+    divide_ff[VGA_RES_1280_1024] = divide_local_ff;
   end
 
-  always_ff @( posedge clk_i or negedge arstn_i )
+  always_ff @( posedge clk_100m_i or negedge arstn_i )
     if     ( ~arstn_i ) state_ff <= IDLE_S;
     else if( state_en ) state_ff <= state_next;
 
@@ -120,7 +121,7 @@ module vga_clk_gen
         s_axi_awaddr = CONFIG_ADDR;
         s_axi_awvalid = 1'b1;
 
-        s_axi_wdata = 32'{ divide_ff[resolution_i].freq_frac, divide_ff[resolution_i].freq_int };
+        s_axi_wdata = 32'({ divide_ff[resolution_i].freq_frac, divide_ff[resolution_i].freq_int });
         s_axi_wvalid = 1'b1;
 
         s_axi_bready = 1'b1;
@@ -142,7 +143,7 @@ module vga_clk_gen
     endcase
   end
 
-  clk_wiz_0 clk_wiz_0(
+  clk_wiz_1 clk_wiz_1(
     .s_axi_aclk      (clk_100m_i),        // input s_axi_aclk                        
     .s_axi_aresetn   (arstn_i),     // input s_axi_aresetn,                                                          
     .s_axi_awaddr    (s_axi_awaddr),      // input [10 : 0] s_axi_awaddr,                              
