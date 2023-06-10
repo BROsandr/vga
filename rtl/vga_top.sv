@@ -13,8 +13,8 @@ module vga_top
 );
   localparam HSYNC_BITS = 11,
              VSYNC_BITS = 11,
-             HD         = 1280,
-             VD         = 1024;
+             HD         = 800,
+             VD         = 600;
   enum bit [1:0] {
     BLACK,
     WHITE,
@@ -28,15 +28,17 @@ module vga_top
   
   logic                  pixel_enable;
   
-    parameter HF = 48;                      // Front porch
-    parameter HR = 112;                     // Retrace/Sync
-    parameter HB = 248;                     // Back Porch
+    parameter HF = 40;                      // Front porch
+    parameter HR = 128;                     // Retrace/Sync
+    parameter HB = 88;                     // Back Porch
     parameter HMAX = HD + HF + HR + HB - 1; // MAX counter value
     
     parameter VF = 1;
-    parameter VR = 3;
-    parameter VB = 38;
+    parameter VR = 4;
+    parameter VB = 23;
     parameter VMAX = VD + VF + VR + VB - 1;
+
+  vga_timing_io timing_if();
 
   vga vga(
     .clk_i  ( clk_i   ), 
@@ -49,21 +51,36 @@ module vga_top
     .rgb_o( RGB_o ),
     .led_o( LED_o ),
     
-    .hd_i( HD ),
-    .hf_i( HF ),
-    .hr_i( HR ),
-    .hb_i( HB ),
+    .hd_i( timing_if.hd ),
+    .hf_i( timing_if.hf ),
+    .hr_i( timing_if.hr ),
+    .hb_i( timing_if.hb ),
          
-    .vd_i( VD ),
-    .vf_i( VF ),
-    .vr_i( VR ),
-    .vb_i( VB ),
+    .vd_i( timing_if.vd ),
+    .vf_i( timing_if.vf ),
+    .vr_i( timing_if.vr ),
+    .vb_i( timing_if.vb ),
     
     .we_i( 1'b1 ),
     
     .hcount_o( hcount ),
     .vcount_o( vcount ),
     .pixel_enable_o( pixel_enable )
+  );
+
+  vga_res_mem vga_res_mem(
+    .clk_i( clk_i ),
+    .arstn_i( arstn_i ),
+
+    .resolution_i( VGA_RES_1280_1024 ),
+    .req_i( 1'b1 ),
+
+    .timing_if( timing_if ),
+
+    .freq_int_o( ),
+    .freq_frac_o( ),
+
+    .valid_o( )
   );
 
   logic [1:0] video_buffer_ff[VD * HD];
