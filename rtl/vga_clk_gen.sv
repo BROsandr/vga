@@ -58,7 +58,7 @@ module vga_clk_gen
   initial begin
     divide_s divide_local_ff;
 
-    divide_local_ff.freq_int = 8'd25;
+    divide_local_ff.freq_int = 8'd25;  // clk period in ns
     divide_local_ff.freq_frac = 10'd0;
 
     divide_ff[VGA_RES_800_600] = divide_local_ff;
@@ -67,8 +67,8 @@ module vga_clk_gen
   initial begin
     divide_s divide_local_ff;
 
-    divide_local_ff.freq_int = 8'd108;
-    divide_local_ff.freq_frac = 10'd0;
+    divide_local_ff.freq_int = 8'd9;
+    divide_local_ff.freq_frac = 10'd259;
 
     divide_ff[VGA_RES_1280_1024] = divide_local_ff;
   end
