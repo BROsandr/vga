@@ -18,8 +18,9 @@ module vga_clk_gen
   enum { 
     IDLE_S,
     SET_CONFIG_S,
-    WAIT_LOCKED_S,
+    WAIT_LOCKED_S_S,
     APPLY_CONFIG_S,
+    WAIT_LOCKED_A_S,
     VALID_S
   } state_ff, state_next;
 
@@ -84,15 +85,19 @@ module vga_clk_gen
       end
 
       SET_CONFIG_S: begin
-        if( s_axi_bvalid ) state_next = WAIT_LOCKED_S;
+        if( s_axi_bvalid ) state_next = WAIT_LOCKED_S_S;
       end
 
-      WAIT_LOCKED_S: begin
+      WAIT_LOCKED_S_S: begin
         if( locked ) state_next = APPLY_CONFIG_S;
       end
 
       APPLY_CONFIG_S: begin
-        if( s_axi_bvalid ) state_next = VALID_S;
+        if( s_axi_bvalid ) state_next = WAIT_LOCKED_A_S;
+      end
+      
+      WAIT_LOCKED_A_S: begin
+        if( locked ) state_next = VALID_S;
       end
 
       VALID_S: begin
