@@ -74,7 +74,7 @@ module vga_clk_gen
 
   always_ff @( posedge clk_100m_i or negedge arstn_i )
     if     ( ~arstn_i ) state_ff <= IDLE_S;
-    else if( state_en ) state_ff <= state_next;
+    else                state_ff <= state_next;
 
   always_comb begin
     state_next = state_ff;
