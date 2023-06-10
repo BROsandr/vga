@@ -65,7 +65,13 @@ vga_clk_gen vga_clk_gen(
     initial begin
       req <= 1'b1;
       resolution <= VGA_RES_1280_1024;
-      @( valid );
+      @( posedge valid );
+      req <= 1'b0;
+      @( posedge clk );
+      
+      req <= 1'b1;
+      resolution <= VGA_RES_800_600;
+      @( posedge valid );
       req <= 1'b0;
     end
 endmodule
