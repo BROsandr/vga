@@ -9,7 +9,9 @@ module vga_top
   input [10:0] addr_y_i,
   input        we_i,
   output [11:0] RGB_o,
-  output [11:0] LED_o
+  output [11:0] LED_o,
+  
+  input  [3:0]  sw
 );
   enum bit [1:0] {
     BLACK,
@@ -58,7 +60,7 @@ module vga_top
     .clk_i( clk_i ),
     .arstn_i( arstn_i ),
 
-    .resolution_i( VGA_RES_1280_1024 ),
+    .resolution_i( sw[2] ),
     .req_i( 1'b1 ),
 
     .timing_if( timing_if ),
