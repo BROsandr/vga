@@ -11,10 +11,6 @@ module vga_top
   output [11:0] RGB_o,
   output [11:0] LED_o
 );
-  localparam HSYNC_BITS = 11,
-             VSYNC_BITS = 11,
-             HD         = 800,
-             VD         = 600;
   enum bit [1:0] {
     BLACK,
     WHITE,
@@ -27,16 +23,6 @@ module vga_top
   logic [VGA_MAX_V_WIDTH-1:0] vcount;
   
   logic                  pixel_enable;
-  
-    parameter HF = 40;                      // Front porch
-    parameter HR = 128;                     // Retrace/Sync
-    parameter HB = 88;                     // Back Porch
-    parameter HMAX = HD + HF + HR + HB - 1; // MAX counter value
-    
-    parameter VF = 1;
-    parameter VR = 4;
-    parameter VB = 23;
-    parameter VMAX = VD + VF + VR + VB - 1;
 
   vga_timing_io timing_if();
 
@@ -83,23 +69,23 @@ module vga_top
     .valid_o( )
   );
 
-  logic [1:0] video_buffer_ff[VD * HD];
+  logic [1:0] video_buffer_ff[VGA_MAX_V * VGA_MAX_H];
   
   logic [1:0] video_buffer_pixel_ff;
   
   always_ff @( posedge clk_i ) 
-    if( we_i )  video_buffer_ff[addr_x_i * HD + addr_y_i] <= color_i;
+    if( we_i )  video_buffer_ff[addr_x_i * VGA_MAX_H + addr_y_i] <= color_i;
   
-  logic [VSYNC_BITS-1:0] vcount_buff;
-  logic [HSYNC_BITS-1:0] hcount_buff ;
+  logic [VGA_MAX_V_WIDTH-1:0] vcount_buff;
+  logic [VGA_MAX_H_WIDTH-1:0] hcount_buff ;
     
   always_ff @( posedge clk_i ) begin
-    vcount_buff <= vcount - (VR+VB);
-    hcount_buff <= hcount - (HR+HB);
+    vcount_buff <= vcount - (timing_if.vr+timing_if.vb);
+    hcount_buff <= hcount - (timing_if.hr+timing_if.hb);
   end
     
   always_ff @( posedge clk_i )
-    video_buffer_pixel_ff <= video_buffer_ff[( vcount_buff ) * HD + ( hcount_buff )];
+    video_buffer_pixel_ff <= video_buffer_ff[( vcount_buff ) * VGA_MAX_H + ( hcount_buff )];
 //    video_buffer_pixel_ff <= video_buffer_ff[( vcount ) * HD + ( hcount )];
   
   always_ff @( posedge clk_i )
