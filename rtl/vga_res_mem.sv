@@ -7,15 +7,7 @@ module vga_res_mem
   input  vga_resolution_e resolution_i,
   input  logic        req_i,
 
-  output logic [VGA_MAX_H_WIDTH-1:0] hd_o,
-  output logic [VGA_MAX_H_WIDTH-1:0] hf_o,
-  output logic [VGA_MAX_H_WIDTH-1:0] hr_o,
-  output logic [VGA_MAX_H_WIDTH-1:0] hb_o,
-         
-  output logic [VGA_MAX_V_WIDTH-1:0] vd_o,
-  output logic [VGA_MAX_V_WIDTH-1:0] vf_o,
-  output logic [VGA_MAX_V_WIDTH-1:0] vr_o,
-  output logic [VGA_MAX_V_WIDTH-1:0] vb_o,
+  vga_timing_io timing_if,
 
   output logic [7:0]                 freq_int_o,
   output logic [7:0]                 freq_frac_o,
@@ -23,23 +15,8 @@ module vga_res_mem
   output logic                       valid_o
 );
 
-  logic [VGA_MAX_H_WIDTH-1:0] hd_ff;
-  logic [VGA_MAX_H_WIDTH-1:0] hd_next;
-  logic [VGA_MAX_H_WIDTH-1:0] hf_ff;
-  logic [VGA_MAX_H_WIDTH-1:0] hf_next;
-  logic [VGA_MAX_H_WIDTH-1:0] hr_ff;
-  logic [VGA_MAX_H_WIDTH-1:0] hr_next;
-  logic [VGA_MAX_H_WIDTH-1:0] hb_ff;
-  logic [VGA_MAX_H_WIDTH-1:0] hb_next;
-         
-  logic [VGA_MAX_V_WIDTH-1:0] vd_ff;
-  logic [VGA_MAX_V_WIDTH-1:0] vd_next;
-  logic [VGA_MAX_V_WIDTH-1:0] vf_ff;
-  logic [VGA_MAX_V_WIDTH-1:0] vf_next;
-  logic [VGA_MAX_V_WIDTH-1:0] vr_ff;
-  logic [VGA_MAX_V_WIDTH-1:0] vr_next;
-  logic [VGA_MAX_V_WIDTH-1:0] vb_ff;
-  logic [VGA_MAX_V_WIDTH-1:0] vb_next;
+  vga_timing_io timing_if_ff();
+  vga_timing_io timing_if_next();
   
   logic [7:0] freq_int_ff;
   logic [7:0] freq_int_next;
@@ -85,30 +62,30 @@ module vga_res_mem
     resolution_ff[VGA_RES_800_600] = resolution_local_ff;
   end
 
-  assign hd_next = resolution_ff[resolution_i].hd;
-  assign hf_next = resolution_ff[resolution_i].hf;
-  assign hr_next = resolution_ff[resolution_i].hr;
-  assign hb_next = resolution_ff[resolution_i].hb; 
+  assign timing_if_next.hd = resolution_ff[resolution_i].hd;
+  assign timing_if_next.hf = resolution_ff[resolution_i].hf;
+  assign timing_if_next.hr = resolution_ff[resolution_i].hr;
+  assign timing_if_next.hb = resolution_ff[resolution_i].hb; 
 
-  assign vd_next = resolution_ff[resolution_i].vd;
-  assign vf_next = resolution_ff[resolution_i].vf;
-  assign vr_next = resolution_ff[resolution_i].vr;
-  assign vb_next = resolution_ff[resolution_i].vb; 
+  assign timing_if_next.vd = resolution_ff[resolution_i].vd;
+  assign timing_if_next.vf = resolution_ff[resolution_i].vf;
+  assign timing_if_next.vr = resolution_ff[resolution_i].vr;
+  assign timing_if_next.vb = resolution_ff[resolution_i].vb; 
 
-  assign freq_int_next = resolution_ff[resolution_i].freq_int;
+  assign freq_int_next = resolution_ff[resolution_i] .freq_int;
   assign freq_frac_next = resolution_ff[resolution_i].freq_frac; 
 
   always_ff @( posedge clk_i )
     if( req_i ) begin
-      hd_ff <= hd_next;
-      hf_ff <= hf_next;
-      hr_ff <= hr_next;
-      hb_ff <= hb_next;
+      timing_if_ff.hd <= timing_if_next.hd;
+      timing_if_ff.hf <= timing_if_next.hf;
+      timing_if_ff.hr <= timing_if_next.hr;
+      timing_if_ff.hb <= timing_if_next.hb;
 
-      vd_ff <= vd_next;
-      vf_ff <= vf_next;
-      vr_ff <= vr_next;
-      vb_ff <= vb_next;
+      timing_if_ff.vd <= timing_if_next.vd;
+      timing_if_ff.vf <= timing_if_next.vf;
+      timing_if_ff.vr <= timing_if_next.vr;
+      timing_if_ff.vb <= timing_if_next.vb;
 
       freq_int_ff <= freq_int_next;
       freq_frac_ff <= freq_frac_next;
@@ -119,15 +96,15 @@ module vga_res_mem
     if     ( ~arstn_i ) valid_ff <= '0;
     else if( req_i   ) valid_ff <= valid_next;
 
-  assign hd_o = hd_ff;
-  assign hf_o = hf_ff;
-  assign hr_o = hr_ff;
-  assign hb_o = hb_ff;
+  assign timing_if.hd = timing_if_ff.hd;
+  assign timing_if.hf = timing_if_ff.hf;
+  assign timing_if.hr = timing_if_ff.hr;
+  assign timing_if.hb = timing_if_ff.hb;
 
-  assign vd_o = vd_ff;
-  assign vf_o = vf_ff;
-  assign vr_o = vr_ff;
-  assign vb_o = vb_ff;
+  assign timing_if.vd = timing_if_ff.vd;
+  assign timing_if.vf = timing_if_ff.vf;
+  assign timing_if.vr = timing_if_ff.vr;
+  assign timing_if.vb = timing_if_ff.vb;
 
   assign freq_int_o = freq_int_ff;
   assign freq_frac_o = freq_frac_ff;
