@@ -4,7 +4,7 @@ module vga_res_mem
   input  logic clk_i,
   input  logic arstn_i,
 
-  input  resolution_e resolution_i,
+  input  vga_resolution_e resolution_i,
   input  logic        req_i,
 
   output logic [VGA_MAX_H_WIDTH-1:0] hd_o,
