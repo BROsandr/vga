@@ -62,6 +62,25 @@ module vga_res_mem
     resolution_ff[VGA_RES_800_600] = resolution_local_ff;
   end
 
+  initial begin
+    resolution_s resolution_local_ff;
+
+    resolution_local_ff.hd = VGA_MAX_H_WIDTH'('d1280);
+    resolution_local_ff.hf = VGA_MAX_H_WIDTH'('d48);
+    resolution_local_ff.hr = VGA_MAX_H_WIDTH'('d112);
+    resolution_local_ff.hb = VGA_MAX_H_WIDTH'('d248);
+
+    resolution_local_ff.vd = VGA_MAX_V_WIDTH'('d1024);
+    resolution_local_ff.vf = VGA_MAX_V_WIDTH'('d1);
+    resolution_local_ff.vr = VGA_MAX_V_WIDTH'('d3);
+    resolution_local_ff.vb = VGA_MAX_V_WIDTH'('d38);
+
+    resolution_local_ff.freq_int = 8'd108;
+    resolution_local_ff.freq_frac = 8'd0;
+
+    resolution_ff[VGA_RES_1280_1024] = resolution_local_ff;
+  end
+
   assign timing_if_next.hd = resolution_ff[resolution_i].hd;
   assign timing_if_next.hf = resolution_ff[resolution_i].hf;
   assign timing_if_next.hr = resolution_ff[resolution_i].hr;
