@@ -1,8 +1,10 @@
 `timescale 1ns / 1ps
 
-module vga_top_top(
+module vga_top_top
+  import vga_pkg::*;
+(
   input clk_i, arstn_i,
-  input [3:0] sw,
+  input [2:0] sw,
   
   output VGA_HS_o, VGA_VS_o,
   output [11:0] RGB_o,
@@ -23,14 +25,27 @@ module vga_top_top(
   
   logic req;
   
-  assign req = sw[3];
-  
+  edge_detect #(
+    .WIDTH( 1 ),
+    .REGISTER_OUTPUTS( 1'b1 )
+  ) in_ed (
+    .clk( clk_i ),
+    .anrst( 1'b1 ),
+    .in( sw[2] ),
+    .rising(  ),
+    .falling(  ),
+    .both( req )
+  );
+
   logic clk40mhz;
+  
+  vga_resolution_e resolution;
+  assign resolution = ( sw[2] ) ? ( VGA_RES_800_600 ) : ( VGA_RES_1280_1024 );
   
   vga_clk_gen clk_gen(
     .clk_100m_i( clk_i ),
-    .arstn_i( arsnt_i ),
-    .resolution_i( sw[2] ),
+    .arstn_i( arstn_i ),
+    .resolution_i( resolution ),
     .req_i( req ),
   
     .clk_o( clk40mhz ),
@@ -48,7 +63,7 @@ module vga_top_top(
     .we_i( we_ff ),
     .RGB_o( RGB_o ),
     .LED_o( LED_o ),
-    .sw( sw )
+    .sw_i( sw[2] )
   );
     
   always_ff @( posedge clk40mhz or negedge arstn_i )

@@ -11,7 +11,7 @@ module vga_top
   output [11:0] RGB_o,
   output [11:0] LED_o,
   
-  input  [3:0]  sw
+  input  logic  sw_i
 );
   enum bit [1:0] {
     BLACK,
@@ -19,6 +19,9 @@ module vga_top
     BLUE,
     GREEN
   } color_type;
+
+  vga_resolution_e resolution; 
+  assign resolution = ( sw_i ) ? ( VGA_RES_800_600 ) : ( VGA_RES_1280_1024 );
 
   logic [11:0] color_ff;
   logic [VGA_MAX_H_WIDTH-1:0] hcount;
@@ -60,7 +63,7 @@ module vga_top
     .clk_i( clk_i ),
     .arstn_i( arstn_i ),
 
-    .resolution_i( sw[2] ),
+    .resolution_i( resolution ),
     .req_i( 1'b1 ),
 
     .timing_if( timing_if ),

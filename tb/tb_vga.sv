@@ -28,7 +28,7 @@ logic VGA_HS, VGA_VS;
 logic [11:0] RGB, LED;
 
 logic clk, arstn;
-logic [1:0] sw;
+logic [2:0] sw;
     
   vga_top_top vga_top_top(
     .clk_i( clk ), .arstn_i( arstn ),
@@ -46,8 +46,6 @@ logic [1:0] sw;
         end
     end
     
-    assign sw = 2'b11;
-    
     initial begin
       arstn <= 0;
       #100ns;
@@ -55,5 +53,15 @@ logic [1:0] sw;
       #10s
       $finish;
     
+    end
+    
+    initial begin
+        sw <= '0;
+        @( posedge arstn );
+        @( posedge clk );
+        sw <= 3'b101;
+        #1ms;
+        @( posedge clk );
+        sw <= 3'b001;
     end
 endmodule
