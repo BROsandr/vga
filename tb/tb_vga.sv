@@ -42,7 +42,7 @@ logic [1:0] sw;
     initial begin
         clk <= 0;
         forever begin
-          #10 clk <= ~clk;
+          #5 clk <= ~clk;
         end
     end
     
