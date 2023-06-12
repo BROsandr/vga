@@ -52,7 +52,6 @@ module vga_clk_gen
   logic [31:0] s_axi_rdata;
   logic [1:0]  s_axi_rresp;
   logic        s_axi_rvalid;
-  logic        s_axi_rready;
   logic        locked;
 
   initial begin
@@ -168,7 +167,7 @@ module vga_clk_gen
     .s_axi_rdata     (s_axi_rdata),       // output [31 : 0] s_axi_rdata,                            
     .s_axi_rresp     (s_axi_rresp),       // output [1 : 0] s_axi_rresp,                                               
     .s_axi_rvalid    (s_axi_rvalid),      // output s_axi_rvalid,                                                        
-    .s_axi_rready    (s_axi_rready),      // input s_axi_rready,                                                         
+    .s_axi_rready    (1'b0),      // input s_axi_rready,                                                         
     // Clock out ports
     .clk_out1(clk_o),     // output clk_out1
     // Status and control signals
