@@ -13,7 +13,7 @@ module vga_top_top
 
   logic [10:0] addr_x, addr_y_ff;
   
-  assign addr_x = 11'd1000;
+  assign addr_x = 11'd500;
   
   logic [1:0]       color;
   
