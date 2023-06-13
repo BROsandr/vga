@@ -9,7 +9,6 @@ module vga_top
   input [10:0] addr_y_i,
   input        we_i,
   output [11:0] RGB_o,
-  output [11:0] LED_o,
   
   input  logic  sw_i
 );
@@ -40,7 +39,6 @@ module vga_top
     .vga_hs_o( VGA_HS_o ), 
     .vga_vs_o( VGA_VS_o ),
     .rgb_o( RGB_o ),
-    .led_o( LED_o ),
     
     .hd_i( timing_if.hd ),
     .hf_i( timing_if.hf ),

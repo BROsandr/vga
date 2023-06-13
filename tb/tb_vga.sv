@@ -25,7 +25,7 @@ module tb_vga(
     );
 
 logic VGA_HS, VGA_VS;
-logic [11:0] RGB, LED;
+logic [11:0] RGB;
 
 logic clk, arstn;
 logic [2:0] sw;
@@ -35,8 +35,7 @@ logic [2:0] sw;
     .sw( sw ),
 
     .VGA_HS_o( VGA_HS ), .VGA_VS_o( VGA_VS ),
-    .RGB_o( RGB ),
-    .LED_o( LED )
+    .RGB_o( RGB )
   );
 		
     initial begin

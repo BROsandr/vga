@@ -9,7 +9,6 @@ module vga
   output logic                       vga_hs_o, 
   output logic                       vga_vs_o,
   output logic [11:0]                rgb_o,
-  output logic [11:0]                led_o,
 
   input  logic [VGA_MAX_H_WIDTH-1:0] hd_i, // Display area
   input  logic [VGA_MAX_H_WIDTH-1:0] hf_i, // Front porch
