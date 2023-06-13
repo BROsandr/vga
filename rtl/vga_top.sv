@@ -92,6 +92,8 @@ module vga_top
       WHITE: color_ff <= { 12{1'b1} };
       BLUE : color_ff <= { { 4{1'b1} }, { 8{1'b0} } };
       GREEN: color_ff <= { { 4{1'b0} }, { 4{1'b1} }, { 4{1'b0} } };
+
+      default: color_ff <= { 12{1'b0} };
     endcase
 
 
