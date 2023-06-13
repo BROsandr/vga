@@ -113,28 +113,60 @@ module vga
   always_ff @( posedge clk_i or negedge arstn_i ) 
     if      ( ~arstn_i    ) vcount_ff <= '0;
     else if ( vcount_en   ) vcount_ff <= vcount_next;
-  
-  // Horizontal and Vertical sync signal generator
-  assign hsync_next = ( hcount_ff < ( hd_ff + hf_ff - 1 ) || hcount_ff > ( hd_ff + hf_ff + hr_ff - 1 ) ) ? 1'b1 : 1'b0;
-  assign vsync_next = ( vcount_ff < ( vd_ff + vf_ff - 1 ) || vcount_ff > ( vd_ff + vf_ff + vr_ff - 1 ) ) ? 1'b1 : 1'b0;
-  always_ff @ ( posedge clk_i or negedge arstn_i )
+
+  enum { 
+    DISPLAY_S,
+    FRONT_S,
+    SYNC_S,
+    BACK_S
+  } hstate_ff, hstate_next,
+    vstate_ff, vstate_next;
+
+  always_ff @( posedge clk_i or negedge arstn_i )
     if( ~arstn_i ) begin
-      hsync_ff <= '0;
-      vsync_ff <= '0;
+      hstate_ff <= DISPLAY_S;
+      vstate_ff <= DISPLAY_S;
     end else begin
-      hsync_ff <= hsync_next;
-      vsync_ff <= vsync_next;
+      hstate_ff <= hstate_next;
+      vstate_ff <= vstate_next;
     end
-  
-  // Assigning register values to outputs
-  assign vga_hs_o = hsync_ff;
-  assign vga_vs_o = vsync_ff;
-  
-  assign pixel_enable_o  = pixel_enable_ff;
-  assign pixel_enable_next = ( hcount_ff < ( hd_ff - 1) && vcount_ff < ( vd_ff - 1 ) ) ? ( 1'b1 ) : ( 1'b0 );
-  always_ff @( posedge clk_i or negedge arstn_i ) 
-    if      ( ~arstn_i        ) pixel_enable_ff <= '0;
-    else                        pixel_enable_ff <= pixel_enable_next;
+
+  always_comb begin
+    hstate_next = hstate_ff;
+    case( hstate_ff)
+      DISPLAY_S: if( hcount_ff == hd_ff - 1 )                 hstate_next = FRONT_S;
+
+      FRONT_S:   if( hcount_ff == hd_ff + hf_ff - 1 )         hstate_next = SYNC_S;
+
+      SYNC_S:    if( hcount_ff == hd_ff + hf_ff + hr_ff - 1 ) hstate_next = BACK_S;
+
+      BACK_S:    if( hcount_ff == htotal_ff - 1 )             hstate_next = DISPLAY_S;
+
+      default:                                                hstate_next = DISPLAY_S;
+    endcase
+  end
+
+  always_comb begin
+    vstate_next = vstate_ff;
+    if( vcount_en ) begin
+      case( vstate_ff)
+        DISPLAY_S: if( vcount_ff == vd_ff - 1 )                 vstate_next = FRONT_S;
+
+        FRONT_S:   if( vcount_ff == vd_ff + vf_ff - 1 )         vstate_next = SYNC_S;
+
+        SYNC_S:    if( vcount_ff == vd_ff + vf_ff + vr_ff - 1 ) vstate_next = BACK_S;
+
+        BACK_S:    if( vcount_ff == vtotal_ff - 1 )             vstate_next = DISPLAY_S;
+
+        default:                                                vstate_next = DISPLAY_S;
+      endcase
+    end
+  end
+
+  assign vga_hs_o = hstate_ff inside {DISPLAY_S, FRONT_S, BACK_S};
+  assign vga_vs_o = vstate_ff inside {DISPLAY_S, FRONT_S, BACK_S};
+
+  assign pixel_enable_o = ( vstate_ff == DISPLAY_S ) && ( hstate_ff == DISPLAY_S ); 
   
   // Buffering switch inputs
   always_ff @( posedge clk_i ) switches_ff <= sw_i;
