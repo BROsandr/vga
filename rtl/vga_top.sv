@@ -75,6 +75,11 @@ module vga_top
   logic [1:0] video_buffer_ff[VGA_MAX_V * VGA_MAX_H];
   
   logic [1:0] video_buffer_pixel_ff;
+
+  initial begin
+    for( int i = 0; i < VGA_MAX_V * VGA_MAX_H; ++i )
+      video_buffer_ff[i] <= '0;
+  end
   
   always_ff @( posedge clk_i ) 
     if( we_i )  video_buffer_ff[addr_x_i * VGA_MAX_H + addr_y_i] <= color_i;
