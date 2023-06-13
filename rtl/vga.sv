@@ -102,12 +102,10 @@ module vga
     end
   
   // Horizontal counter
-  assign hcount_en   = hcount_ff < ( htotal_ff - 1 );
-  assign hcount_next = hcount_ff + 1;
+  assign hcount_next = ( hcount_ff < ( htotal_ff - 1 ) ) ? ( hcount_ff + 1 ) : ( '0 );
   always_ff @ ( posedge clk_i or negedge arstn_i )
     if      ( ~arstn_i  ) hcount_ff <= '0;
-    else if ( hcount_en ) hcount_ff <= hcount_next;
-    else                  hcount_ff <= '0;
+    else                  hcount_ff <= hcount_next;
   
   // Vertical counter
   assign vcount_en   = ( hcount_ff == ( htotal_ff - 1 ) );
@@ -132,12 +130,11 @@ module vga
   assign vga_hs_o = hsync_ff;
   assign vga_vs_o = vsync_ff;
   
-  assign pixel_enable_en = hcount_ff < ( hd_ff - 1) && vcount_ff < ( vd_ff - 1 );
   assign pixel_enable_o  = pixel_enable_ff;
+  assign pixel_enable_next = ( hcount_ff < ( hd_ff - 1) && vcount_ff < ( vd_ff - 1 ) ) ? ( 1'b1 ) : ( 1'b0 );
   always_ff @( posedge clk_i or negedge arstn_i ) 
     if      ( ~arstn_i        ) pixel_enable_ff <= '0;
-    else if ( pixel_enable_en ) pixel_enable_ff <= 1'b1;
-    else                        pixel_enable_ff <= '0;
+    else                        pixel_enable_ff <= pixel_enable_next;
   
   // Buffering switch inputs
   always_ff @( posedge clk_i ) switches_ff <= sw_i;
