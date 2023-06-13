@@ -30,15 +30,14 @@ module vga_top
 
   vga_timing_io timing_if();
 
+  assign RGB_o = color_ff;
+
   vga vga(
     .clk_i  ( clk_i   ), 
     .arstn_i( arstn_i ),
     
-    .sw_i( color_ff ),
-    
     .vga_hs_o( VGA_HS_o ), 
     .vga_vs_o( VGA_VS_o ),
-    .rgb_o( RGB_o ),
     
     .hd_i( timing_if.hd ),
     .hf_i( timing_if.hf ),

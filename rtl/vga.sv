@@ -4,11 +4,8 @@ module vga
   input  logic                       clk_i, 
   input  logic                       arstn_i,
   
-  input  logic [11:0]                sw_i,
-  
   output logic                       vga_hs_o, 
   output logic                       vga_vs_o,
-  output logic [11:0]                rgb_o,
 
   input  logic [VGA_MAX_H_WIDTH-1:0] hd_i, // Display area
   input  logic [VGA_MAX_H_WIDTH-1:0] hf_i, // Front porch
@@ -67,9 +64,6 @@ module vga
   logic [VGA_MAX_V_WIDTH-1:0] vf_ff;
   logic [VGA_MAX_V_WIDTH-1:0] vr_ff;
   logic [VGA_MAX_V_WIDTH-1:0] vb_ff;
-  
-  // Switch state buffer registers
-  logic [11:0] switches_ff;
 
   always_ff @ ( posedge clk_i or negedge arstn_i )
     if          ( ~arstn_i ) begin
@@ -167,13 +161,6 @@ module vga
 
   assign pixel_enable_o = ( vstate_ff == DISPLAY_S ) && ( hstate_ff == DISPLAY_S ); 
   
-  // Buffering switch inputs
-  always_ff @( posedge clk_i ) switches_ff <= sw_i;
-  
-  // Assigning the current switch state to both view which switches are on and output to VGA RGB DAC
-  assign led_o = switches_ff;
-  assign rgb_o = ( pixel_enable_o ) ? ( switches_ff ) : ( '0 );
-
   assign hcount_o = hcount_ff;
   assign vcount_o = vcount_ff;
 endmodule
