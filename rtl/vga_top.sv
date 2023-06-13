@@ -80,18 +80,9 @@ module vga_top
   
   always_ff @( posedge clk_i ) 
     if( we_i )  video_buffer_ff[addr_x_i * VGA_MAX_H + addr_y_i] <= color_i;
-  
-  logic [VGA_MAX_V_WIDTH-1:0] vcount_buff;
-  logic [VGA_MAX_H_WIDTH-1:0] hcount_buff ;
-    
-  always_ff @( posedge clk_i ) begin
-    vcount_buff <= vcount - (timing_if.vr+timing_if.vb);
-    hcount_buff <= hcount - (timing_if.hr+timing_if.hb);
-  end
     
   always_ff @( posedge clk_i )
-    video_buffer_pixel_ff <= ( pixel_enable ) ? ( video_buffer_ff[( vcount_buff ) * VGA_MAX_H + ( hcount_buff )] ) : ( '0 );
-//    video_buffer_pixel_ff <= video_buffer_ff[( vcount ) * HD + ( hcount )];
+    video_buffer_pixel_ff <= ( pixel_enable ) ? ( video_buffer_ff[( vcount ) * VGA_MAX_H + ( hcount )] ) : ( '0 );
   
   always_ff @( posedge clk_i )
     case( video_buffer_pixel_ff )
