@@ -90,7 +90,7 @@ module vga_top
   end
     
   always_ff @( posedge clk_i )
-    video_buffer_pixel_ff <= video_buffer_ff[( vcount_buff ) * VGA_MAX_H + ( hcount_buff )];
+    video_buffer_pixel_ff <= ( pixel_enable ) ? ( video_buffer_ff[( vcount_buff ) * VGA_MAX_H + ( hcount_buff )] ) : ( '0 );
 //    video_buffer_pixel_ff <= video_buffer_ff[( vcount ) * HD + ( hcount )];
   
   always_ff @( posedge clk_i )
