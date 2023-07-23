@@ -20,23 +20,30 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module tb_vga(
+module tb_clk_gen
+  import vga_pkg::*;
+(
 
     );
 
 logic VGA_HS, VGA_VS;
-logic [11:0] RGB;
+logic [11:0] RGB, LED;
 
 logic clk, arstn;
-logic [2:0] sw;
+vga_resolution_e resolution;
+logic req;
+logic clk_out;
+logic valid;
     
-  vga_top_top vga_top_top(
-    .clk_i( clk ), .arstn_i( arstn ),
-    .sw( sw ),
+vga_clk_gen vga_clk_gen(
+  .clk_100m_i( clk ),
+  .arstn_i( arstn ),
+  .resolution_i( resolution ),
+  .req_i( req ),
 
-    .VGA_HS_o( VGA_HS ), .VGA_VS_o( VGA_VS ),
-    .RGB_o( RGB )
-  );
+  .clk_o( clk_out ),
+  .valid_o( valid )
+);
 		
     initial begin
         clk <= 0;
@@ -45,22 +52,26 @@ logic [2:0] sw;
         end
     end
     
+    assign sw = 2'b11;
+    
     initial begin
       arstn <= 0;
       #100ns;
       arstn <= 1;
       #10s
       $finish;
-    
     end
     
     initial begin
-        sw <= '0;
-        @( posedge arstn );
-        @( posedge clk );
-        sw <= 3'b101;
-        #1ms;
-        @( posedge clk );
-        sw <= 3'b001;
+      req <= 1'b1;
+      resolution <= VGA_RES_1280_1024;
+      @( posedge valid );
+      req <= 1'b0;
+      @( posedge clk );
+      
+      req <= 1'b1;
+      resolution <= VGA_RES_800_600;
+      @( posedge valid );
+      req <= 1'b0;
     end
 endmodule
