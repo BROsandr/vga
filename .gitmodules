@@ -1,0 +1,3 @@
+[submodule "submodules/ddr_wrapper"]
+	path = submodules/ddr_wrapper
+	url = https://github.com/BROsandr/ddr_wrapper.git
