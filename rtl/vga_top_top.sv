@@ -97,22 +97,6 @@ module vga_top_top
   
   logic wr_gnt;
 
-  ddr_if ddr_if();
-
-  assign ddr2_dq            = ddr_if.ddr2_dq      ;
-  assign ddr2_dqs_n         = ddr_if.ddr2_dqs_n   ;
-  assign ddr2_dqs_p         = ddr_if.ddr2_dqs_p   ;
-  assign ddr2_addr          = ddr_if.ddr2_addr    ;
-  assign ddr2_ba            = ddr_if.ddr2_ba      ;
-  assign ddr2_ras_n         = ddr_if.ddr2_ras_n   ;
-  assign ddr2_cas_n         = ddr_if.ddr2_cas_n   ;
-  assign ddr2_we_n          = ddr_if.ddr2_we_n    ;
-  assign ddr2_ck_p          = ddr_if.ddr2_ck_p    ;
-  assign ddr2_ck_n          = ddr_if.ddr2_ck_n    ;
-  assign ddr2_cke           = ddr_if.ddr2_cke     ;
-  assign ddr2_dm            = ddr_if.ddr2_dm      ;
-  assign ddr2_odt           = ddr_if.ddr2_odt     ;
-
   vga_top vga_top(
     .clk_vga_i( clk40mhz ),
     .clk_100m_i(clk_i), 
@@ -127,7 +111,33 @@ module vga_top_top
     .RGB_o( RGB_o ),
     .sw_i( sw[2] ),
 
-    .ddr_if
+    .ddr2_dq,
+
+    .ddr2_dqs_n,
+
+    .ddr2_dqs_p,
+
+    // Outputs
+
+    .ddr2_addr,
+
+    .ddr2_ba,
+
+    .ddr2_ras_n,
+
+    .ddr2_cas_n,
+
+    .ddr2_we_n,
+
+    .ddr2_ck_p,
+
+    .ddr2_ck_n,
+
+    .ddr2_cke,
+
+    .ddr2_dm,
+
+    .ddr2_odt
   );
 
   always_ff @( posedge clk40mhz or negedge arstn_i )

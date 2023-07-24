@@ -15,7 +15,36 @@ module vga_top
   
   input  logic  sw_i,
 
-  ddr_if ddr_if
+  // ddr
+  // Inouts
+
+  inout [15:0]                       ddr2_dq,
+
+  inout [1:0]                        ddr2_dqs_n,
+
+  inout [1:0]                        ddr2_dqs_p,
+
+  // Outputs
+
+  output [12:0]                      ddr2_addr,
+
+  output [2:0]                       ddr2_ba,
+
+  output                             ddr2_ras_n,
+
+  output                             ddr2_cas_n,
+
+  output                             ddr2_we_n,
+
+  output [0:0]                       ddr2_ck_p,
+
+  output [0:0]                       ddr2_ck_n,
+
+  output [0:0]                       ddr2_cke,
+
+  output [1:0]                       ddr2_dm,
+
+  output [0:0]                       ddr2_odt
 );
   enum bit [1:0] {
     BLACK,
@@ -100,8 +129,33 @@ module vga_top
     .rd_gnt_o(),
 
     // ddr
+    .ddr2_dq,
 
-    .ddr_if
+    .ddr2_dqs_n,
+
+    .ddr2_dqs_p,
+
+    // Outputs
+
+    .ddr2_addr,
+
+    .ddr2_ba,
+
+    .ddr2_ras_n,
+
+    .ddr2_cas_n,
+
+    .ddr2_we_n,
+
+    .ddr2_ck_p,
+
+    .ddr2_ck_n,
+
+    .ddr2_cke,
+
+    .ddr2_dm,
+
+    .ddr2_odt
   );
   logic [1:0] video_buffer_ff[VGA_MAX_V * VGA_MAX_H];
   
