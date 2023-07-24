@@ -7,7 +7,39 @@ module vga_top_top
   input [2:0] sw,
   
   output VGA_HS_o, VGA_VS_o,
-  output [11:0] RGB_o
+  output [11:0] RGB_o,
+
+  // ddr
+  // Inouts
+
+  inout [15:0]                       ddr2_dq,
+
+  inout [1:0]                        ddr2_dqs_n,
+
+  inout [1:0]                        ddr2_dqs_p,
+
+  // Outputs
+
+  output [12:0]                      ddr2_addr,
+
+  output [2:0]                       ddr2_ba,
+
+  output                             ddr2_ras_n,
+
+  output                             ddr2_cas_n,
+
+  output                             ddr2_we_n,
+
+  output [0:0]                       ddr2_ck_p,
+
+  output [0:0]                       ddr2_ck_n,
+
+  output [0:0]                       ddr2_cke,
+
+  output [1:0]                       ddr2_dm,
+
+  output [0:0]                       ddr2_odt
+
 );
 
   logic [10:0] addr_x_ff, addr_y_ff;
@@ -63,26 +95,50 @@ module vga_top_top
     .valid_o()
   );
   
+  logic wr_gnt;
+
+  ddr_if ddr_if();
+
+  assign ddr2_dq            = ddr_if.ddr2_dq      ;
+  assign ddr2_dqs_n         = ddr_if.ddr2_dqs_n   ;
+  assign ddr2_dqs_p         = ddr_if.ddr2_dqs_p   ;
+  assign ddr2_addr          = ddr_if.ddr2_addr    ;
+  assign ddr2_ba            = ddr_if.ddr2_ba      ;
+  assign ddr2_ras_n         = ddr_if.ddr2_ras_n   ;
+  assign ddr2_cas_n         = ddr_if.ddr2_cas_n   ;
+  assign ddr2_we_n          = ddr_if.ddr2_we_n    ;
+  assign ddr2_ck_p          = ddr_if.ddr2_ck_p    ;
+  assign ddr2_ck_n          = ddr_if.ddr2_ck_n    ;
+  assign ddr2_cke           = ddr_if.ddr2_cke     ;
+  assign ddr2_dm            = ddr_if.ddr2_dm      ;
+  assign ddr2_odt           = ddr_if.ddr2_odt     ;
 
   vga_top vga_top(
-    .clk_i( clk40mhz ), .arstn_i( arstn_i ),
+    .clk_vga_i( clk40mhz ),
+    .clk_100m_i(clk_i), 
+    .arstn_i( arstn_i ),
     
     .VGA_HS_o( VGA_HS_o ), .VGA_VS_o( VGA_VS_o ),
     .color_i( color ),
     .addr_x_i( addr_x_ff ),
     .addr_y_i( addr_y_ff ),
     .we_i( we_ff ),
+    .wr_gnt_o(wr_gnt),
     .RGB_o( RGB_o ),
-    .sw_i( sw[2] )
+    .sw_i( sw[2] ),
+
+    .ddr_if
   );
 
   always_ff @( posedge clk40mhz or negedge arstn_i )
     if( ~arstn_i )
       addr_x_ff <= '0;
-    else if( addr_x_ff < res_x )
-      addr_x_ff <= addr_x_ff + 1'b1;
-    else 
-      addr_x_ff <= '0;
+    else if(wr_gnt) begin
+      if ( addr_x_ff < res_x )
+        addr_x_ff <= addr_x_ff + 1'b1;
+      else 
+        addr_x_ff <= '0;
+    end
 
   always_ff @( posedge clk40mhz or negedge arstn_i )
     if( ~arstn_i )
@@ -99,7 +155,7 @@ module vga_top_top
   always_ff @( posedge clk40mhz or negedge arstn_i )
     if( ~arstn_i )
       counter_ff <= '0;
-    else 
+    else if(wr_gnt)
       counter_ff <= counter_ff + 1;
 
   assign counter_tick = counter_ff == '0;
