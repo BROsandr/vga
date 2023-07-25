@@ -127,6 +127,7 @@ module vga_top
     .rd_data_o(color),
     .wr_gnt_o,
     .rd_gnt_o(),
+    .init_complete_o(),
 
     // ddr
     .ddr2_dq,
