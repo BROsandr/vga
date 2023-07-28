@@ -67,12 +67,12 @@ module vga
 
   always_ff @ ( posedge clk_i or negedge arstn_i )
     if          ( ~arstn_i ) begin
-      hd_ff <= '0;
+      hd_ff <= '1;
       hf_ff <= '0;
       hr_ff <= '0;
       hb_ff <= '0;
 
-      vd_ff <= '0;
+      vd_ff <= '1;
       vf_ff <= '0;
       vr_ff <= '0;
       vb_ff <= '0;
