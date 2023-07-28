@@ -257,6 +257,20 @@ module vga
     $fatal("sva:vs pulse not on display_time + front_porch_time + sync_pulse");
   end
 
+  sva_hcount_fell_on_timing: assert property(
+    @(posedge clk_i) disable iff (!arstn_i)
+    $fell(vga_hs_o) |-> hcount_o == (hd_ff + hf_ff)
+  ) else begin
+    $fatal("sva:hs pulse not on display_time + front_porch_time");
+  end
+
+  sva_hcount_rose_on_timing: assert property(
+    @(posedge clk_i) disable iff (!arstn_i)
+    $rose(vga_hs_o) |-> hcount_o == (htotal_ff - hb_ff)
+  ) else begin
+    $fatal("sva:hs pulse not on display_time + front_porch_time + sync_pulse");
+  end
+
   sva_enable_inside_display: assert property(
     @(posedge clk_i) disable iff (!arstn_i)
     pixel_enable_o |-> (vcount_o inside {[0:vd_ff]}) && (hcount_o inside {[0:hd_ff]})
