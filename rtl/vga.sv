@@ -249,4 +249,11 @@ module vga
   ) else begin
     $fatal("sva:vs pulse not on display_time + front_porch_time");
   end
+
+  sva_vcount_rose_on_timing: assert property(
+    @(posedge clk_i) disable iff (!arstn_i)
+    $rose(vga_vs_o) |-> vcount_o == (vtotal_ff - vb_ff)
+  ) else begin
+    $fatal("sva:vs pulse not on display_time + front_porch_time + sync_pulse");
+  end
 endmodule
