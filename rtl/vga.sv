@@ -126,7 +126,7 @@ module vga
 
   always_comb begin
     hstate_next = hstate_ff;
-    case( hstate_ff)
+    unique case( hstate_ff)
       DISPLAY_S: if( hcount_ff == hd_ff - 1 )                 hstate_next = FRONT_S;
 
       FRONT_S:   if( hcount_ff == hd_ff + hf_ff - 1 )         hstate_next = SYNC_S;
@@ -142,7 +142,7 @@ module vga
   always_comb begin
     vstate_next = vstate_ff;
     if( vcount_en ) begin
-      case( vstate_ff)
+      unique case( vstate_ff)
         DISPLAY_S: if( vcount_ff == vd_ff - 1 )                 vstate_next = FRONT_S;
 
         FRONT_S:   if( vcount_ff == vd_ff + vf_ff - 1 )         vstate_next = SYNC_S;
