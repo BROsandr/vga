@@ -268,6 +268,6 @@ module vga
     @(posedge clk_i) disable iff (!arstn_i)
     pixel_enable_o |-> vga_hs_o && vga_vs_o
   ) else begin
-    $fatal("sva:pixel_enable_o==1 outside the display area");
+    $fatal("sva:pixel_enable_o==1 inside the pulse");
   end
 endmodule
