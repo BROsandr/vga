@@ -240,6 +240,13 @@ module vga
     @(posedge clk_i) disable iff (!arstn_i)
     !$stable(vcount_o) |-> ~|hcount_ff && ($past(hcount_o) == (htotal_ff - VGA_MAX_H_WIDTH'(1)))
   ) else begin
-    $fatal("vcount changed but hcount was not reseted");
+    $fatal("sva:vcount changed but hcount was not reseted");
+  end
+
+  sva_vcount_fell_on_timing: assert property(
+    @(posedge clk_i) disable iff (!arstn_i)
+    $fell(vga_vs_o) |-> vcount_o == (vd_ff + vf_ff)
+  ) else begin
+    $fatal("sva:vs pulse not on display_time + front_porch_time");
   end
 endmodule
