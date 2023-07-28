@@ -256,4 +256,11 @@ module vga
   ) else begin
     $fatal("sva:vs pulse not on display_time + front_porch_time + sync_pulse");
   end
+
+  sva_enable_inside_display: assert property(
+    @(posedge clk_i) disable iff (!arstn_i)
+    pixel_enable_o |-> (vcount_o inside {[0:vd_ff]}) && (hcount_o inside {[0:hd_ff]})
+  ) else begin
+    $fatal("sva:pixel_enable_o==1 outside the display area");
+  end
 endmodule
