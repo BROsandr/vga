@@ -163,4 +163,82 @@ module vga
   
   assign hcount_o = hcount_ff;
   assign vcount_o = vcount_ff;
+
+// X Checks
+  sva_x_check_we_i: assert property(
+    @(posedge clk_i)
+    !$isunknown(we_i)
+  ) else begin
+    $fatal("sva:we_i is unknown");
+  end  
+
+  sva_x_check_timings: assert property(
+    @(posedge clk_i)
+    we_i |-> !$isunknown({
+        hd_i,
+        hf_i,
+        hr_i,
+        hb_i,
+        vd_i,
+        vf_i,
+        vr_i,
+        vb_i
+    })
+  ) else begin
+    $fatal("sva:timings is unknown while we_i");
+  end  
+
+  sva_x_check_count: assert property(
+    @(posedge clk_i)
+    !$isunknown({hcount_o, vcount_o})
+  ) else begin
+    $fatal("sva:count is unknown");
+  end
+
+  sva_x_check_pixel_enable: assert property(
+    @(posedge clk_i)
+    !$isunknown(pixel_enable_o)
+  ) else begin
+    $fatal("sva:pixel_enable is unknown");
+  end
+
+// Behavioral
+  sva_x_check_hd_is_greater: assert property(
+    @(posedge clk_i)
+    hd_i > hf_i && hd_i > hr_i && hd_i > hb_i
+  ) else begin
+    $fatal("sva:hd_i is lesser or equal than hf_i || hr_i || hb_i");
+  end
+  
+  sva_x_check_vd_is_greater: assert property(
+    @(posedge clk_i)
+    vd_i > vf_i && vd_i > vr_i && vd_i > vb_i
+  ) else begin
+    $fatal("sva:vd_i is lesser or equal than vf_i || vr_i || vb_i");
+  end
+
+  logic [VGA_MAX_H_WIDTH*VGA_MAX_V_WIDTH-1:0] pixel_counter_ff;
+  logic                                       pixel_counter_en;
+  assign                                      pixel_counter_en   = (!vga_vs_o || pixel_enable_o);
+  logic [VGA_MAX_H_WIDTH*VGA_MAX_V_WIDTH-1:0] pixel_counter_next;
+  assign                                      pixel_counter_next = (!vga_vs_o) ?
+                                                                   ('0)        :
+                                                                   (pixel_counter_ff + 1);
+  always_ff @(posedge clk_i or negedge arstn_i) begin
+    if      (!arstn_i)         pixel_counter_ff <= '0;
+    else if (pixel_counter_en) pixel_counter_ff <= pixel_counter_next;
+  end
+  sva_pixel_enable_eq_hd_vd: assert property(
+    @(posedge clk_i) disable iff (!arstn_i)
+    $fell(vga_vs_o) |-> pixel_counter_ff == hd_ff * vd_ff
+  ) else begin
+    $fatal("sva:pixel_enable==1 total time != HD * VD");
+  end
+
+  sva_vcount_change_on_hcount_reset: assert property(
+    @(posedge clk_i) disable iff (!arstn_i)
+    !$stable(vcount_o) |-> ~|hcount_ff && ($past(hcount_o) == (htotal_ff - 1))
+  ) else begin
+    $fatal("vcount changed but hcount was not reseted");
+  end
 endmodule
