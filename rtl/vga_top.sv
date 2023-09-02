@@ -1,21 +1,16 @@
 module vga_top
   import vga_pkg::*;
 (
-  input clk_100m_i,
-  input clk_vga_i, 
-  input arstn_i,
+  input clk_i, arstn_i,
   
   output VGA_HS_o, VGA_VS_o,
   input [1:0]  color_i,
   input [10:0] addr_x_i,
   input [10:0] addr_y_i,
   input        we_i,
-  output       wr_gnt_o,
   output [11:0] RGB_o,
   
-  input  logic  sw_i,
-
-  ddr_if ddr_if
+  input  logic  sw_i
 );
   enum bit [1:0] {
     BLACK,
@@ -38,7 +33,7 @@ module vga_top
   assign RGB_o = color_ff;
 
   vga vga(
-    .clk_i  ( clk_vga_i   ), 
+    .clk_i  ( clk_i   ), 
     .arstn_i( arstn_i ),
     
     .vga_hs_o( VGA_HS_o ), 
@@ -62,7 +57,7 @@ module vga_top
   );
 
   vga_res_mem vga_res_mem(
-    .clk_i( clk_vga_i ),
+    .clk_i( clk_i ),
     .arstn_i( arstn_i ),
 
     .resolution_i( resolution ),
@@ -76,37 +71,23 @@ module vga_top
     .valid_o( )
   );
 
-  logic color;
-
-  import vga_ddr_wrapper_pkg::ADDR_WIDTH;
-  vga_ddr_wrapper #(
-    .DATA_BIT_WIDTH(8                    ),
-    .SIZE_BYTE     (VGA_MAX_V * VGA_MAX_H)
-  ) vga_ddr_wrapper (
-
-    .clk_100m_i,
-    .clk_rd_i(clk_vga_i),
-    .clk_wr_i(clk_vga_i),
-
-    .arst_ni(arstn_i),
-
-    .rd_req_i(pixel_enable),
-    .wr_req_i(we_i),
-    .wr_addr_i(addr_x_i * VGA_MAX_H + addr_y_i),
-    .wr_data_i(color_i),
-
-    .rd_data_o(color),
-    .wr_gnt_o,
-    .rd_gnt_o(),
-
-    // ddr
-
-    .ddr_if
-  );
   logic [1:0] video_buffer_ff[VGA_MAX_V * VGA_MAX_H];
   
-  always_ff @( posedge clk_vga_i )
-    case( color )
+  logic [1:0] video_buffer_pixel_ff;
+
+  initial begin
+    for( int i = 0; i < VGA_MAX_V * VGA_MAX_H; ++i )
+      video_buffer_ff[i] <= '0;
+  end
+  
+  always_ff @( posedge clk_i ) 
+    if( we_i )  video_buffer_ff[addr_x_i * VGA_MAX_H + addr_y_i] <= color_i;
+    
+  always_ff @( posedge clk_i )
+    video_buffer_pixel_ff <= ( pixel_enable ) ? ( video_buffer_ff[( vcount ) * VGA_MAX_H + ( hcount )] ) : ( '0 );
+  
+  always_ff @( posedge clk_i )
+    case( video_buffer_pixel_ff )
       BLACK: color_ff <= { 12{1'b0} };
       WHITE: color_ff <= { 12{1'b1} };
       BLUE : color_ff <= { { 4{1'b1} }, { 8{1'b0} } };
