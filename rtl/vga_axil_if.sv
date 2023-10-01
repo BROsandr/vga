@@ -1,4 +1,6 @@
-interface vga_axil_if #(
+interface vga_axil_if 
+  import vga_axil_pkg::axil_resp_e;
+#(
   parameter type axil_addr_t = vga_axil_pkg::axil_addr_t,
   parameter type axil_data_t = vga_axil_pkg::axil_data_t,
   parameter type axil_resp_t = vga_axil_pkg::axil_resp_t
@@ -35,11 +37,35 @@ interface vga_axil_if #(
   logic       bvalid;
   logic       bready;
 
-  task automatic read(output axil_data_t read_data);
-    read_data = axil_data_t'(4);
+  task automatic read(input axil_addr_t addr, output axil_resp_e resp, output axil_data_t data);
+    @(posedge clk);
+    axil_if.araddr  <= addr;
+    axil_if.arvalid <= 1'b1;
+    axil_if.rready  <= 1'b1;
+    do begin
+      @(posedge clk);
+    end while (!(axil_if.arready && axil_if.rvalid));
+
+    resp = axil_if.rresp;
+    data = axil_if.rdata;
+
+    reset_master_r_chan();
   endtask
 
-  task automatic write(axil_addr_t addr, axil_data_t data);
+  task automatic write(input axil_addr_t addr, input axil_data_t data, output axil_resp_e resp);
+    @(posedge clk);
+    axil_if.awaddr  <= addr;
+    axil_if.awvalid <= 1'b1;
+    axil_if.wvalid  <= 1'b1;
+    axil_if.wdata   <= data;
+    axil_if.bready  <= 1'b1;
+    do begin
+      @(posedge clk);
+    end while (!(axil_if.awready && axil_if.wready && axil_if.bvalid));
+
+    resp = axil_if.bresp;
+
+    reset_master_w_chan();
   endtask
 
   function automatic void reset_slave_w_chan(); // Only reset the axil specific(not clk, not reset)

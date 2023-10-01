@@ -80,14 +80,18 @@ module tb_axil_if ();
 
   initial begin : master
     axil_data_t response_data;
+    axil_resp_e response;
 
     // randomize expected_packet
     addr          = $random;
     expected_data = $random;
 
     // read-write to dut
-    axil_if.write(.addr(addr), .data(expected_data));
-    axil_if.read(response_data);
+    axil_if.write(.addr(addr), .data(expected_data), .resp(response));
+    check_resp(.expected(OKAY), .actual(response));
+
+    axil_if.read(.addr(addr), .resp(response), .data(response_data));
+    check_resp(.expected(OKAY), .actual(response));
 
     // scoreboarding(check result)
     if (expected_data == response_data) begin
