@@ -1,8 +1,9 @@
 class vga_scoreboard_error;
-  parameter int unsigned SCB_NUM_OF_ERRORS = 2;
+  parameter int unsigned SCB_NUM_OF_ERRORS = 3;
   parameter type scoreboard_error_e = enum bit [$clog2(SCB_NUM_OF_ERRORS)-1:0] {
     ScbErrorAddrMismatch,
-    ScbErrorDataMismatch
+    ScbErrorDataMismatch,
+    ScbErrorRespMismatch
   };
   scoreboard_error_e error = 'x;
 
@@ -18,6 +19,10 @@ class vga_scoreboard_error;
       end
       ScbErrorDataMismatch: begin
         return $sformatf("ERROR. Data mismatch. Expected data == %s, actual data == %s",
+            expected, actual);
+      end
+      ScbErrorRespMismatch: begin
+        return $sformatf("ERROR. Resp mismatch. Expected Resp == %s, actual Resp == %s",
             expected, actual);
       end
     endcase

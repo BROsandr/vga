@@ -78,6 +78,14 @@ module tb_axil_if ();
     end join
   end
 
+  function automatic void check_resp(axil_resp_e expected, axil_resp_e actual);
+    if (expected != actual) begin
+      vga_scoreboard_error scoreboard_error = new(vga_scoreboard_error::ScbErrorRespMismatch);
+      $fatal(1, scoreboard_error.print_log(.expected($sformatf("0x%x", expected)),
+                                           .actual  ($sformatf("0x%x", actual  ))));
+    end
+  endfunction
+
   initial begin : master
     axil_data_t response_data;
     axil_resp_e response;
