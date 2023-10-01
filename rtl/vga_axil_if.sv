@@ -42,15 +42,7 @@ interface vga_axil_if #(
   task automatic write(axil_addr_t addr, axil_data_t data);
   endtask
 
-  function void reset_slave(); // Only reset the axil specific(not clk, not reset)
-    // AR-channel
-    arready <= '0;
-
-    // R-channel
-    rdata  <= '0;
-    rresp  <= '0;
-    rvalid <= '0;
-
+  function automatic void reset_slave_w_chan(); // Only reset the axil specific(not clk, not reset)
     // AW-channel
     awready <= '0;
 
@@ -62,14 +54,22 @@ interface vga_axil_if #(
     bvalid <= '0;
   endfunction
 
-  function void reset_master(); // Only reset the axil specific(not clk, not reset)
+  function automatic void reset_slave_r_chan(); // Only reset the axil specific(not clk, not reset)
     // AR-channel
-    araddr  <= '0;
-    arvalid <= '0;
+    arready <= '0;
 
     // R-channel
-    rready <= '0;
+    rdata  <= '0;
+    rresp  <= '0;
+    rvalid <= '0;
+  endfunction
 
+  function automatic void reset_slave(); // Only reset the axil specific(not clk, not reset)
+    reset_slave_w_chan();
+    reset_slave_r_chan();
+  endfunction
+
+  function automatic void reset_master_w_chan(); // Only reset the axil specific(not clk, not reset)
     // AW-channel
     awaddr  <= '0;
     awvalid <= '0;
@@ -81,5 +81,19 @@ interface vga_axil_if #(
 
     // B-channel
     bready <= '0;
+  endfunction
+
+  function automatic void reset_master_r_chan(); // Only reset the axil specific(not clk, not reset)
+    // AR-channel
+    araddr  <= '0;
+    arvalid <= '0;
+
+    // R-channel
+    rready <= '0;
+  endfunction
+
+  function automatic void reset_master(); // Only reset the axil specific(not clk, not reset)
+    reset_master_w_chan();
+    reset_master_r_chan();
   endfunction
 endinterface
