@@ -41,4 +41,45 @@ interface vga_axil_if #(
 
   task automatic write(axil_addr_t addr, axil_data_t data);
   endtask
+
+  function void reset_slave(); // Only reset the axil specific(not clk, not reset)
+    // AR-channel
+    arready <= '0;
+
+    // R-channel
+    rdata  <= '0;
+    rresp  <= '0;
+    rvalid <= '0;
+
+    // AW-channel
+    awready <= '0;
+
+    // W-channle
+    wready <= '0;
+
+    // B-channel
+    bresp  <= '0;
+    bvalid <= '0;
+  endfunction
+
+  function void reset_master(); // Only reset the axil specific(not clk, not reset)
+    // AR-channel
+    araddr  <= '0;
+    arvalid <= '0;
+
+    // R-channel
+    rready <= '0;
+
+    // AW-channel
+    awaddr  <= '0;
+    awvalid <= '0;
+
+    // W-channel
+    wdata  <= '0;
+    wstrb  <= '0;
+    wvalid <= '0;
+
+    // B-channel
+    bready <= '0;
+  endfunction
 endinterface
