@@ -29,6 +29,8 @@ interface vga_axil_if
   // W-channel
   axil_data_t wdata;
   axil_strb_t wstrb;
+  logic       wvalid;
+  logic       wready;
 
   // B-channel
   axil_resp_t bresp;
