@@ -7,9 +7,4 @@ package vga_axil_pkg;
 
   parameter int unsigned AXIL_RESP_WIDTH = 2;
   parameter type axil_resp_t = logic [AXIL_RESP_WIDTH-1:0];
-
-  localparam type axil_addr_data_t = struct {
-    axil_addr_t addr;
-    axil_data_t data;
-  };
 endpackage

@@ -7,24 +7,25 @@ module tb_axil_if ();
   initial begin
     import vga_axil_pkg::*;
 
-    axil_addr_data_t     expected_packet = '{addr: axil_addr_t'(3), data: axil_data_t'(4)};
-    axil_data_t          response_data;
+    axil_data_t expected_data = axil_data_t'(4);
+    axil_addr_t addr          = axil_addr_t'(3);
+    axil_data_t response_data;
 
     // randomize expected_packet
-    expected_packet.addr = $random;
-    expected_packet.data = $random;
+    addr          = $random;
+    expected_data = $random;
 
     // read-write to dut
-    axil_if.write(expected_packet);
+    axil_if.write(.addr(addr), .data(expected_data));
     axil_if.read(response_data);
 
     // scoreboarding(check result)
-    if (expected_packet.data == response_data) begin
+    if (expected_data == response_data) begin
       $display("OK");
     end else begin
       vga_scoreboard_error scoreboard_error = new(vga_scoreboard_error::ScbErrorDataMismatch);
-      $fatal(1, scoreboard_error.print_log(.expected($sformatf("0x%x", expected_packet.data)),
-                                            .actual  ($sformatf("0x%x", response_data       ))));
+      $fatal(1, scoreboard_error.print_log(.expected($sformatf("0x%x", expected_data)),
+                                           .actual  ($sformatf("0x%x", response_data       ))));
     end
   end
 endmodule
