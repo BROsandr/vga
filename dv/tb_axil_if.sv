@@ -86,9 +86,20 @@ module tb_axil_if ();
     end
   endfunction
 
+  task automatic reset();
+    arst_n_if.arst_n <= 1'b0;
+    axil_if.reset_master();
+    #100ns;
+  endtask
+
   initial begin : master
     axil_data_t response_data;
     axil_resp_e response;
+
+    // Set up environment
+    clk_if.start_clk();
+    reset();
+
 
     // randomize expected_packet
     addr          = $random;
