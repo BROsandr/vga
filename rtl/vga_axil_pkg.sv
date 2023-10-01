@@ -7,4 +7,9 @@ package vga_axil_pkg;
 
   parameter int unsigned AXIL_RESP_WIDTH = 2;
   parameter type axil_resp_t = logic [AXIL_RESP_WIDTH-1:0];
+
+  parameter type axil_resp_e = enum axil_resp_t { // Only responses which supported by the current IP
+    OKAY   = axil_resp_t'('b00),
+    SLVERR = axil_resp_t'('b10)
+  };
 endpackage
