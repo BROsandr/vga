@@ -1,6 +1,6 @@
 class vga_scoreboard_error;
   parameter int unsigned SCB_NUM_OF_ERRORS = 2;
-  parameter type scoreboard_error_e = enum bit [SCB_NUM_OF_ERRORS-1:0] {
+  parameter type scoreboard_error_e = enum bit [$clog2(SCB_NUM_OF_ERRORS)-1:0] {
     ScbErrorAddrMismatch,
     ScbErrorDataMismatch
   };
