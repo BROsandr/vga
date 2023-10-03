@@ -43,7 +43,13 @@ interface vga_axil_if
     axil_if.rready  <= 1'b1;
     do begin
       @(posedge clk);
-    end while (!(axil_if.arready && axil_if.rvalid));
+    end while (!axil_if.arready);
+
+    axil_if.arvalid <= 1'b0;
+
+    do begin
+      @(posedge clk);
+    end while (!axil_if.rvalid);
 
     resp = axil_if.rresp;
     data = axil_if.rdata;
@@ -61,7 +67,19 @@ interface vga_axil_if
     axil_if.wstrb   <= '1;
     do begin
       @(posedge clk);
-    end while (!(axil_if.awready && axil_if.wready && axil_if.bvalid));
+    end while (!axil_if.awready);
+
+    axil_if.awvalid  <= 1'b0;
+
+    while (!axil_if.wready) begin
+      @(posedge clk);
+    end
+
+    axil_if.wvalid  <= 1'b0;
+
+    do begin
+      @(posedge clk);
+    end while (!axil_if.bvalid);
 
     resp = axil_if.bresp;
 
