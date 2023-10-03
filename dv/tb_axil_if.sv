@@ -65,6 +65,7 @@ module tb_axil_if ();
   endtask
 
   initial begin : slave
+    axil_if.reset_slave();
     fork begin
       forever begin
         wait(axil_if.arst_n);
