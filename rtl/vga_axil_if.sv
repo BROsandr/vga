@@ -218,4 +218,56 @@ interface vga_axil_if
   )  else begin
     $error("some valid is unknonw");
   end
+
+  // unsupported pipeline mode check
+
+  logic  aw_handshake;
+  assign aw_handshake = awvalid && awready;
+
+  logic  w_handshake;
+  assign w_handshake = wvalid && wready;
+
+  logic  b_handshake;
+  assign b_handshake = bvalid && bready;
+
+  logic  ar_handshake;
+  assign ar_handshake = arvalid && arready;
+
+  logic  r_handshake;
+  assign r_handshake = rvalid && rready;
+
+  sva_aw_handshake : assert property (
+    @(posedge clk)
+    aw_handshake |-> ##1 !aw_handshake
+  )  else begin
+    $error("aw_handshake during 2 clk");
+  end
+
+  sva_w_handshake : assert property (
+    @(posedge clk)
+    w_handshake |-> ##1 !w_handshake
+  )  else begin
+    $error("w_handshake during 2 clk");
+  end
+
+  sva_b_handshake : assert property (
+    @(posedge clk)
+    b_handshake |-> ##1 !b_handshake
+  )  else begin
+    $error("b_handshake during 2 clk");
+  end
+
+  sva_ar_handshake : assert property (
+    @(posedge clk)
+    ar_handshake |-> ##1 !ar_handshake
+  )  else begin
+    $error("ar_handshake during 2 clk");
+  end
+
+  sva_r_handshake : assert property (
+    @(posedge clk)
+    r_handshake |-> ##1 !r_handshake
+  )  else begin
+    $error("r_handshake during 2 clk");
+  end
 endinterface
