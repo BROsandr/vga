@@ -59,6 +59,7 @@ interface vga_axil_if
     axil_if.wvalid  <= 1'b1;
     axil_if.wdata   <= data;
     axil_if.bready  <= 1'b1;
+    axil_if.wstrb   <= '1;
     do begin
       @(posedge clk);
     end while (!(axil_if.awready && axil_if.wready && axil_if.bvalid));
