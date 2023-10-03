@@ -31,7 +31,11 @@ module tb_axil_if ();
       axil_if.bvalid <= 1'b1;
       axil_if.bresp  <= OKAY;
 
-      $display("OK. Slave. Write");
+      do begin
+        @(posedge clk_if.clk);
+      end while (!axil_if.bready);
+
+      $display($sformatf("OK. Time == %f. Slave. Write", $time));
     end
   endtask
 
@@ -41,7 +45,7 @@ module tb_axil_if ();
     axil_if.rresp   <= SLVERR;
     @(posedge clk_if.clk);
 
-    if (axil_if.arvalid && axil_if.rready) begin
+    if (axil_if.arvalid) begin
       if (axil_if.araddr != addr) begin
         vga_scoreboard_error scoreboard_error = new(vga_scoreboard_error::ScbErrorAddrMismatch);
         $fatal(1, scoreboard_error.print_log(.expected($sformatf("0x%x", addr)),
@@ -50,8 +54,13 @@ module tb_axil_if ();
 
       axil_if.rvalid <= 1'b1;
       axil_if.rresp  <= OKAY;
+      axil_if.rdata  <= expected_data;
 
-      $display("OK. Slave. Read");
+      do begin
+        @(posedge clk_if.clk);
+      end while (!axil_if.rready);
+
+      $display($sformatf("OK. Time == %f. Slave. Read", $time));
     end
   endtask
 
