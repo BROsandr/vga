@@ -9,11 +9,11 @@ module tb_axil_if ();
   axil_addr_t addr          = axil_addr_t'(3);
 
   task automatic handle_write2slave();
-    @(posedge clk_if.clk);
     axil_if.awready <= 1'b1;
     axil_if.wready  <= 1'b1;
     axil_if.bvalid  <= 1'b0;
     axil_if.bresp   <= SLVERR;
+    @(posedge clk_if.clk);
 
     if (axil_if.awvalid && axil_if.wvalid) begin
       if (axil_if.awaddr != addr) begin
@@ -36,10 +36,10 @@ module tb_axil_if ();
   endtask
 
   task automatic handle_read2slave();
-    @(posedge clk_if.clk);
     axil_if.arready <= 1'b1;
     axil_if.rvalid  <= 1'b0;
     axil_if.rresp   <= SLVERR;
+    @(posedge clk_if.clk);
 
     if (axil_if.arvalid && axil_if.rready) begin
       if (axil_if.araddr != addr) begin
