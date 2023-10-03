@@ -216,7 +216,7 @@ interface vga_axil_if
     @(posedge clk)
     !$isunknown({awvalid, wvalid, bvalid, arvalid, rvalid})
   )  else begin
-    $error("some valid is unknonw");
+    $error("some valid is unknown");
   end
 
   sva_x_reset : assert property (
