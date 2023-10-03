@@ -151,15 +151,35 @@ interface vga_axil_if
   // START SEE. https://github.com/pulp-platform/axi/blob/master/src/axi_intf.sv
   // Single-Channel Assertions: Signals including valid must not change between valid and handshake.
   // AW
-  assert property (@(posedge clk) (awvalid && !awready |=> $stable(awaddr)));
-  assert property (@(posedge clk) (awvalid && !awready |=> awvalid));
+  AXI4_ERRM_AWADDR_STABLE : assert property (
+    @(posedge clk) 
+    (awvalid && !awready |=> $stable(awaddr))
+  );
+  AXI4_ERRM_AWVALID_STABLE : assert property (
+    @(posedge clk) 
+    (awvalid && !awready |=> awvalid)
+  );
   // W
-  assert property (@(posedge clk) (wvalid && !wready |=> $stable(wdata)));
-  assert property (@(posedge clk) (wvalid && !wready |=> $stable(wstrb)));
-  assert property (@(posedge clk) (wvalid && !wready |=> wvalid));
+  AXI4_ERRM_WDATA_STABLE : assert property (
+    @(posedge clk) 
+    (wvalid && !wready |=> $stable(wdata))
+  );
+  AXI4_ERRM_WSTRB_STABLE : assert property (
+    @(posedge clk) 
+    (wvalid && !wready |=> $stable(wstrb))
+  );
+  AXI4_ERRM_WVALID_STABLE : assert property (
+    @(posedge clk) 
+    (wvalid && !wready |=> wvalid)
+  );
   // B
-  assert property (@(posedge clk) (bvalid && !bready |=> $stable(bresp)));
-  assert property (@(posedge clk) (bvalid && !bready |=> bvalid));
+  AXI4_ERRS_BRESP_STABLE : assert property (
+    @(posedge clk) 
+    (bvalid && !bready |=> $stable(bresp))
+  );
+  AXI4_ERRS_BVALID_STABLE : assert property (
+    @(posedge clk) (bvalid && !bready |=> bvalid)
+  );
   // AR
   assert property (@(posedge clk) (arvalid && !arready |=> $stable(araddr)));
   assert property (@(posedge clk) (arvalid && !arready |=> arvalid));
@@ -176,8 +196,15 @@ interface vga_axil_if
     $error("while ~arst_n not all valid == 0");
   end
 
+  AXI4_ERRM_AWVALID_RESET : assert property (
+    @(posedge clk)
+    ~arst_n ##1 arst_n |-> {awvalid, wvalid, bvalid, arvalid, rvalid} == '0
+  ) else begin
+    $error("valid is not 0 for the first cycle after reset");
+  end
+
   // X-checks
-  sva_x_awvalid : assert property (
+  AXI4_ERRM_AWADDR_X : assert property (
     @(posedge clk)
     awvalid |-> !$isunknown(awaddr)
   )  else begin
@@ -212,11 +239,18 @@ interface vga_axil_if
     $error("rresp or rdata == x");
   end
 
-  sva_x_valid : assert property (
+  AXI4_ERRM_VALID_X : assert property (
     @(posedge clk)
     !$isunknown({awvalid, wvalid, bvalid, arvalid, rvalid})
   )  else begin
     $error("some valid is unknown");
+  end
+
+  AXI4_ERRM_READY_X : assert property (
+    @(posedge clk)
+    !$isunknown({awready, wready, bready, arready, rready})
+  )  else begin
+    $error("some ready is unknown");
   end
 
   sva_x_reset : assert property (
