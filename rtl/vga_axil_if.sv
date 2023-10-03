@@ -123,4 +123,82 @@ interface vga_axil_if
     reset_master_w_chan();
     reset_master_r_chan();
   endfunction
+
+  sva_axil_unsupported_wstrb : assert property (
+    @(posedge clk) disable iff ($sampled(~arst_n))
+    wvalid |-> wstrb == '1
+  ) else begin
+    $error("wstrb != '1 while wvalid. Other wstrb values are unsupported.");
+  end
+
+  // START SEE. https://github.com/pulp-platform/axi/blob/master/src/axi_intf.sv
+  // Single-Channel Assertions: Signals including valid must not change between valid and handshake.
+  // AW
+  assert property (@(posedge clk) (awvalid && !awready |=> $stable(awaddr)));
+  assert property (@(posedge clk) (awvalid && !awready |=> awvalid));
+  // W
+  assert property (@(posedge clk) (wvalid && !wready |=> $stable(wdata)));
+  assert property (@(posedge clk) (wvalid && !wready |=> $stable(wstrb)));
+  assert property (@(posedge clk) (wvalid && !wready |=> wvalid));
+  // B
+  assert property (@(posedge clk) (bvalid && !bready |=> $stable(bresp)));
+  assert property (@(posedge clk) (bvalid && !bready |=> bvalid));
+  // AR
+  assert property (@(posedge clk) (arvalid && !arready |=> $stable(araddr)));
+  assert property (@(posedge clk) (arvalid && !arready |=> arvalid));
+  // R
+  assert property (@(posedge clk) (rvalid && !rready |=> $stable(rdata)));
+  assert property (@(posedge clk) (rvalid && !rready |=> $stable(rresp)));
+  assert property (@(posedge clk) (rvalid && !rready |=> rvalid));
+  // END SEE
+
+  sva_axi_reset_valid : assert property (
+    @(posedge clk)
+    ~arst_n |-> {wvalid, awvalid, bvalid, arvalid, rvalid} == '0
+  ) else begin
+    $error("while ~arst_n not all valid == 0");
+  end
+
+  // X-checks
+  sva_x_awvalid : assert property (
+    @(posedge clk)
+    awvalid |=> !$isunknown(awaddr)
+  )  else begin
+    $error("awvalid == x");
+  end
+
+  sva_x_wvalid : assert property (
+    @(posedge clk)
+    wvalid |=> !$isunknown({wdata, wstrb})
+  )  else begin
+    $error("wdata or wstrb == x");
+  end
+
+  sva_x_bvalid : assert property (
+    @(posedge clk)
+    bvalid |=> !$isunknown(bresp)
+  )  else begin
+    $error("bresp == x");
+  end
+
+  sva_x_arvalid : assert property (
+    @(posedge clk)
+    arvalid |=> !$isunknown(araddr)
+  )  else begin
+    $error("araddr == x");
+  end
+
+  sva_x_rvalid : assert property (
+    @(posedge clk)
+    rvalid |=> !$isunknown({rresp, rdata})
+  )  else begin
+    $error("rresp or rdata == x");
+  end
+
+  sva_x_valid : assert property (
+    @(posedge clk)
+    !$isunknown({awvalid, wvalid, bvalid, arvalid, rvalid})
+  )  else begin
+    $error("some valid is unknonw");
+  end
 endinterface
