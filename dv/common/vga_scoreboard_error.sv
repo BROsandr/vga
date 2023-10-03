@@ -5,7 +5,7 @@ class vga_scoreboard_error;
     ScbErrorDataMismatch,
     ScbErrorRespMismatch
   };
-  scoreboard_error_e error = 'x;
+  scoreboard_error_e error;
 
   function new(scoreboard_error_e error);
     this.error = error;
