@@ -179,35 +179,35 @@ interface vga_axil_if
   // X-checks
   sva_x_awvalid : assert property (
     @(posedge clk)
-    awvalid |=> !$isunknown(awaddr)
+    awvalid |-> !$isunknown(awaddr)
   )  else begin
     $error("awvalid == x");
   end
 
   sva_x_wvalid : assert property (
     @(posedge clk)
-    wvalid |=> !$isunknown({wdata, wstrb})
+    wvalid |-> !$isunknown({wdata, wstrb})
   )  else begin
     $error("wdata or wstrb == x");
   end
 
   sva_x_bvalid : assert property (
     @(posedge clk)
-    bvalid |=> !$isunknown(bresp)
+    bvalid |-> !$isunknown(bresp)
   )  else begin
     $error("bresp == x");
   end
 
   sva_x_arvalid : assert property (
     @(posedge clk)
-    arvalid |=> !$isunknown(araddr)
+    arvalid |-> !$isunknown(araddr)
   )  else begin
     $error("araddr == x");
   end
 
   sva_x_rvalid : assert property (
     @(posedge clk)
-    rvalid |=> !$isunknown({rresp, rdata})
+    rvalid |-> !$isunknown({rresp, rdata})
   )  else begin
     $error("rresp or rdata == x");
   end
