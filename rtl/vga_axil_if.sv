@@ -1,9 +1,8 @@
-interface vga_axil_if 
-  import vga_axil_pkg::axil_resp_e;
+interface vga_axil_if
+  import vga_axil_pkg::axil_resp_e, vga_axil_pkg::axil_resp_t;
 #(
   parameter type axil_addr_t = vga_axil_pkg::axil_addr_t,
-  parameter type axil_data_t = vga_axil_pkg::axil_data_t,
-  parameter type axil_resp_t = vga_axil_pkg::axil_resp_t
+  parameter type axil_data_t = vga_axil_pkg::axil_data_t
 ) (
   input logic clk,
   input logic arst_n
