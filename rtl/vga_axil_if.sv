@@ -219,6 +219,13 @@ interface vga_axil_if
     $error("some valid is unknonw");
   end
 
+  sva_x_reset : assert property (
+    @(posedge clk)
+    !$isunknown(arst_n)
+  )  else begin
+    $error("reset is unknown");
+  end
+
   // unsupported pipeline mode check
 
   logic  aw_handshake;
