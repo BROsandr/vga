@@ -125,7 +125,7 @@ module tb_axil_if ();
 
     // scoreboarding(check result)
     if (expected_data == response_data) begin
-      $display("OK");
+      $display($sformatf("OK. Time == %f", $time));
     end else begin
       vga_scoreboard_error scoreboard_error = new(vga_scoreboard_error::ScbErrorDataMismatch);
       $fatal(1, scoreboard_error.print_log(.expected($sformatf("0x%x", expected_data)),

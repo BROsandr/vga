@@ -14,16 +14,17 @@ class vga_scoreboard_error;
   function string print_log(string expected, string actual);
     unique case (error)
       ScbErrorAddrMismatch: begin
-        return $sformatf("ERROR. Address mismatch. Expected address == %s, actual address == %s",
-            expected, actual);
+        return $sformatf(
+            "ERROR. TIME == %f. Address mismatch. Expected address == %s, actual address == %s",
+            $time, expected, actual);
       end
       ScbErrorDataMismatch: begin
-        return $sformatf("ERROR. Data mismatch. Expected data == %s, actual data == %s",
-            expected, actual);
+        return $sformatf("ERROR. TIME == %f. Data mismatch. Expected data == %s, actual data == %s",
+            $time, expected, actual);
       end
       ScbErrorRespMismatch: begin
-        return $sformatf("ERROR. Resp mismatch. Expected Resp == %s, actual Resp == %s",
-            expected, actual);
+        return $sformatf("ERROR. TIME == %f. Resp mismatch. Expected Resp == %s, actual Resp == %s",
+            $time, expected, actual);
       end
     endcase
   endfunction
