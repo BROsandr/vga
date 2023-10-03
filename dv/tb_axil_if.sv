@@ -100,6 +100,7 @@ module tb_axil_if ();
     arst_n_if.arst_n <= 1'b0;
     axil_if.reset_master();
     #100ns;
+    arst_n_if.arst_n <= 1'b1;
   endtask
 
   initial begin : master
