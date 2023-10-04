@@ -181,13 +181,33 @@ interface vga_axil_if
     @(posedge clk) (bvalid && !bready |=> bvalid)
   );
   // AR
-  assert property (@(posedge clk) (arvalid && !arready |=> $stable(araddr)));
-  assert property (@(posedge clk) (arvalid && !arready |=> arvalid));
+  AXI4_ERRM_ARADDR_STABLE : assert property (
+    @(posedge clk)
+    (arvalid && !arready |=> $stable(araddr))
+  );
+  AXI4_ERRM_ARVALID_STABLE : assert property (
+    @(posedge clk)
+    (arvalid && !arready |=> arvalid)
+  );
   // R
-  assert property (@(posedge clk) (rvalid && !rready |=> $stable(rdata)));
-  assert property (@(posedge clk) (rvalid && !rready |=> $stable(rresp)));
-  assert property (@(posedge clk) (rvalid && !rready |=> rvalid));
+  AXI4_ERRS_RDATA_STABLE : assert property (
+    @(posedge clk)
+    (rvalid && !rready |=> $stable(rdata))
+  );
+  AXI4_ERRS_RRESP_STABLE : assert property (
+    @(posedge clk)
+    (rvalid && !rready |=> $stable(rresp))
+  );
+  AXI4_ERRS_RVALID_STABLE : assert property (
+    @(posedge clk)
+    (rvalid && !rready |=> rvalid)
+  );
   // END SEE
+
+  initial begin : sva_internal_logic_checks
+    AXI4LITE_AUX_DATA_WIDTH : assert($size(axil_data_t) inside {32, 64});
+    AXI4_AUX_ADDR_WIDTH     : assert($size(axil_addr_t) inside {32, 64});
+  end
 
   sva_axi_reset_valid : assert property (
     @(posedge clk)
