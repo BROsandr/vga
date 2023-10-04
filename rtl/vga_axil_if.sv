@@ -203,6 +203,62 @@ interface vga_axil_if
     $error("valid is not 0 for the first cycle after reset");
   end
 
+  localparam int  NUM_OF_VALID_TYPES = 2;
+  localparam type valid_e = enum bit [$clog2(NUM_OF_VALID_TYPES)-1:0] {
+    AddrValid,
+    DataValid
+  };
+  typedef valid_e valid_sequence[$];
+  valid_sequence  write_sequence;
+  valid_sequence  read_sequence;
+  valid_sequence  expected_sequence = '{AddrValid, DataValid};
+
+  function automatic void print_sequence_elements(valid_sequence seq);
+    foreach (seq[i]) $display("%p ", seq[i]);
+  endfunction
+
+  function automatic void print_sequences(valid_sequence expected_sequence,
+                                          valid_sequence actual_sequence);
+    $display("Expected sequence ==");
+    print_sequence_elements(expected_sequence);
+    $display("");
+    $display("Actual sequence ==");
+    print_sequence_elements(actual_sequence);
+  endfunction
+
+  function automatic void check_sequence(valid_sequence actual_sequence);
+    if (expected_sequence.size != actual_sequence.size) begin
+      $error("expected_sequence.size != actual_sequence.size \n%d != %d",
+          expected_sequence.size, actual_sequence.size);
+      print_sequences(expected_sequence, actual_sequence);
+    end else begin
+      foreach (expected_sequence[i]) begin
+        if (expected_sequence[i] != actual_sequence[i]) begin
+          $error("Sequence mismatch");
+          print_sequences(expected_sequence, actual_sequence);
+        end
+      end
+    end
+  endfunction
+
+  always_ff @(posedge clk) begin : check_write_sequence
+    if ($rose(awvalid)) write_sequence.push_back(AddrValid);
+    if ($rose(wvalid))  write_sequence.push_back(DataValid);
+    if ($rose(bvalid)) begin
+      check_sequence(write_sequence);
+      write_sequence.delete();
+    end
+  end
+
+  always_ff @(posedge clk) begin : check_read_sequence
+    if ($rose(arvalid)) read_sequence.push_back(AddrValid);
+    if ($rose(rvalid)) begin
+      read_sequence.push_back(DataValid);
+      check_sequence(read_sequence);
+      read_sequence.delete();
+    end
+  end
+
   // X-checks
   AXI4_ERRM_AWADDR_X : assert property (
     @(posedge clk)
