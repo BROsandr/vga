@@ -36,6 +36,23 @@ interface vga_axil_if
   logic       bvalid;
   logic       bready;
 
+  // START handshakes
+  logic  aw_handshake;
+  assign aw_handshake = awvalid && awready;
+
+  logic  w_handshake;
+  assign w_handshake = wvalid && wready;
+
+  logic  b_handshake;
+  assign b_handshake = bvalid && bready;
+
+  logic  ar_handshake;
+  assign ar_handshake = arvalid && arready;
+
+  logic  r_handshake;
+  assign r_handshake = rvalid && rready;
+  // END handshakes
+
   task automatic read(input axil_addr_t addr, output axil_resp_e resp, output axil_data_t data);
     @(posedge clk);
     axil_if.araddr  <= addr;

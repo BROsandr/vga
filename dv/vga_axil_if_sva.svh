@@ -194,22 +194,6 @@ sva_x_reset : assert property (
 end
 
 // unsupported pipeline mode check
-
-logic  aw_handshake;
-assign aw_handshake = awvalid && awready;
-
-logic  w_handshake;
-assign w_handshake = wvalid && wready;
-
-logic  b_handshake;
-assign b_handshake = bvalid && bready;
-
-logic  ar_handshake;
-assign ar_handshake = arvalid && arready;
-
-logic  r_handshake;
-assign r_handshake = rvalid && rready;
-
 sva_aw_handshake : assert property (
   @(posedge clk)
   aw_handshake |-> ##1 !aw_handshake
