@@ -137,6 +137,20 @@ always_ff @(posedge clk) begin : check_read_sequence
   end
 end
 
+sva_w_handshake_b_handshake : assert property (
+  @(posedge clk)
+  w_handshake |-> !b_handshake
+)  else begin
+  $error("w_handshake and b_handshake are simultaneous");
+end
+
+sva_ar_handshake_r_handshake : assert property (
+  @(posedge clk)
+  ar_handshake |-> !r_handshake
+)  else begin
+  $error("ar_handshake and r_handshake are simultaneous");
+end
+
 // START unsupported pipeline mode check
 sva_aw_handshake : assert property (
   @(posedge clk)
