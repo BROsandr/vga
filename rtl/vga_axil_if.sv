@@ -68,7 +68,7 @@ interface vga_axil_if
       @(posedge clk);
     end while (!axil_if.rvalid);
 
-    resp = axil_if.rresp;
+    resp = axil_resp_e'(axil_if.rresp);
     data = axil_if.rdata;
 
     reset_master_r_chan();
@@ -98,7 +98,7 @@ interface vga_axil_if
       @(posedge clk);
     end while (!axil_if.bvalid);
 
-    resp = axil_if.bresp;
+    resp = axil_resp_e'(axil_if.bresp);
 
     reset_master_w_chan();
   endtask
