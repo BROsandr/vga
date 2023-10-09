@@ -1,3 +1,4 @@
+// START behavioral
 sva_axil_unsupported_wstrb : assert property (
   @(posedge clk) disable iff ($sampled(~arst_n))
   wvalid |-> wstrb == '1
@@ -136,7 +137,46 @@ always_ff @(posedge clk) begin : check_read_sequence
   end
 end
 
-// X-checks
+// START unsupported pipeline mode check
+sva_aw_handshake : assert property (
+  @(posedge clk)
+  aw_handshake |-> ##1 !aw_handshake
+)  else begin
+  $error("aw_handshake during 2 clk");
+end
+
+sva_w_handshake : assert property (
+  @(posedge clk)
+  w_handshake |-> ##1 !w_handshake
+)  else begin
+  $error("w_handshake during 2 clk");
+end
+
+sva_b_handshake : assert property (
+  @(posedge clk)
+  b_handshake |-> ##1 !b_handshake
+)  else begin
+  $error("b_handshake during 2 clk");
+end
+
+sva_ar_handshake : assert property (
+  @(posedge clk)
+  ar_handshake |-> ##1 !ar_handshake
+)  else begin
+  $error("ar_handshake during 2 clk");
+end
+
+sva_r_handshake : assert property (
+  @(posedge clk)
+  r_handshake |-> ##1 !r_handshake
+)  else begin
+  $error("r_handshake during 2 clk");
+end
+// END unsupported pipeline mode check
+
+// END behavioral
+
+// START X-checks
 AXI4_ERRM_AWADDR_X : assert property (
   @(posedge clk)
   awvalid |-> !$isunknown(awaddr)
@@ -192,39 +232,4 @@ sva_x_reset : assert property (
 )  else begin
   $error("reset is unknown");
 end
-
-// unsupported pipeline mode check
-sva_aw_handshake : assert property (
-  @(posedge clk)
-  aw_handshake |-> ##1 !aw_handshake
-)  else begin
-  $error("aw_handshake during 2 clk");
-end
-
-sva_w_handshake : assert property (
-  @(posedge clk)
-  w_handshake |-> ##1 !w_handshake
-)  else begin
-  $error("w_handshake during 2 clk");
-end
-
-sva_b_handshake : assert property (
-  @(posedge clk)
-  b_handshake |-> ##1 !b_handshake
-)  else begin
-  $error("b_handshake during 2 clk");
-end
-
-sva_ar_handshake : assert property (
-  @(posedge clk)
-  ar_handshake |-> ##1 !ar_handshake
-)  else begin
-  $error("ar_handshake during 2 clk");
-end
-
-sva_r_handshake : assert property (
-  @(posedge clk)
-  r_handshake |-> ##1 !r_handshake
-)  else begin
-  $error("r_handshake during 2 clk");
-end
+// END X-check
