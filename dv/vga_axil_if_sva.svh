@@ -188,6 +188,13 @@ sva_r_handshake : assert property (
 end
 // END unsupported pipeline mode check
 
+sva_aw_handshake_w_handshake : assert property (
+  @(posedge clk)
+  aw_handshake |-> w_handshake
+)  else begin
+  $error("aw_handshake and w_handshake are not simultaneous");
+end
+
 // END behavioral
 
 // START X-checks
