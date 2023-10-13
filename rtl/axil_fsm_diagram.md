@@ -1,6 +1,6 @@
 ```mermaid
 ---
-read
+title: read
 ---
 
 graph LR
@@ -23,7 +23,7 @@ graph LR
 
 ```mermaid
 ---
-write
+title: write
 ---
 
 graph LR
