@@ -12,4 +12,8 @@ package vga_axil_pkg;
     OKAY   = axil_resp_t'('b00),
     SLVERR = axil_resp_t'('b10)
   };
+
+  parameter int unsigned AXIL_WIDTH_OFFSET = 3; // axil_slave is word addressed
+  parameter int unsigned NATIVE_ADDR_WIDTH = AXIL_ADDR_WIDTH - AXIL_WIDTH_OFFSET;
+  parameter type native_addr_t = logic [NATIVE_ADDR_WIDTH-1:0];
 endpackage
