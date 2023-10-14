@@ -7,14 +7,10 @@ module tb_axil_fsm ();
   vga_axil_if        axil_if(clk_if.clk, arst_n_if.arst_n);
 
   import vga_axil_pkg::*;
-  axil_data_t   expected_data;
-  axil_addr_t   expected_axil_addr;
-  native_addr_t expected_native_addr;
-  assign        expected_native_addr = axil2native_addr(expected_axil_addr);
+  axil_data_t expected_data[native_addr_t];
+  axil_data_t actual_data  [native_addr_t];
 
   axil_data_t   data2axil;
-  assign        data2axil = expected_data;
-
   native_addr_t addr_write;
   native_addr_t addr_read;
   axil_data_t   data2native;
@@ -35,19 +31,10 @@ module tb_axil_fsm ();
     @(posedge clk_if.clk);
 
     if (write_en) begin
-      if (addr_write != expected_native_addr) begin
-        vga_scoreboard_error scoreboard_error = new(vga_scoreboard_error::ScbErrorAddrMismatch);
-        $fatal(1, scoreboard_error.print_log(.expected($sformatf("0x%x", expected_native_addr)),
-                                              .actual  ($sformatf("0x%x", addr_write))));
-      end
+      actual_data[addr_write] = data2native;
 
-      if (data2native != expected_data) begin
-        vga_scoreboard_error scoreboard_error = new(vga_scoreboard_error::ScbErrorAddrMismatch);
-        $fatal(1, scoreboard_error.print_log(.expected($sformatf("0x%x", expected_data)),
-                                             .actual  ($sformatf("0x%x", data2native))));
-      end
-
-      $display($sformatf("OK. Time == %f. Slave. Write", $time));
+      $display($sformatf("OK. Time == %f. Slave. Write. Addr == %d, Data == %d",
+          $time, addr_write, data2native));
     end
   endtask
 
@@ -55,13 +42,10 @@ module tb_axil_fsm ();
     @(posedge clk_if.clk);
 
     if (read_en) begin
-      if (addr_read != expected_native_addr) begin
-        vga_scoreboard_error scoreboard_error = new(vga_scoreboard_error::ScbErrorAddrMismatch);
-        $fatal(1, scoreboard_error.print_log(.expected($sformatf("0x%x", expected_native_addr)),
-                                             .actual  ($sformatf("0x%x", addr_read))));
-      end
+      data2axil <= actual_data[addr_read];
 
-      $display($sformatf("OK. Time == %f. Slave. Read", $time));
+      $display($sformatf("OK. Time == %f. Slave. Read. Addr == %d, Data == %d",
+          $time, addr_read, data2axil));
     end
   endtask
 
@@ -104,37 +88,81 @@ module tb_axil_fsm ();
     arst_n_if.arst_n <= 1'b1;
   endtask
 
-  task automatic random_test(int iteration = 10);
-    axil_data_t response_data;
-    axil_resp_e response;
+  function automatic check_addr_data(axil_addr_t addr, axil_data_t actual_data);
+    if (!expected_data.exists(addr)) begin
+      vga_scoreboard_error scoreboard_error = new(vga_scoreboard_error::ScbErrorUnexpectedAddr);
+      $fatal(1, scoreboard_error.print_log(.expected($sformatf("0x%x", addr))));
+    end
+    if (expected_data[addr] == actual_data) begin
+      $display($sformatf("OK. Time == %f", $time));
+    end else begin
+      vga_scoreboard_error scoreboard_error = new(vga_scoreboard_error::ScbErrorDataMismatch);
+      $fatal(1, scoreboard_error.print_log(.expected($sformatf("0x%x", expected_data[addr])),
+                                           .actual  ($sformatf("0x%x", actual_data       ))));
+    end
+  endfunction
+
+  // task automatic random_test(int iteration = 10);
+  //   axil_data_t response_data;
+  //   axil_resp_e response;
+
+  //   repeat (iteration) begin
+  //     // randomize expected_packet
+  //     expected_axil_addr = $random;
+  //     expected_data      = $random;
+
+  //     // read-write to dut
+  //     axil_if.write(.addr(expected_axil_addr), .data(expected_data), .resp(response));
+  //     check_resp(.expected(OKAY), .actual(response));
+
+  //     axil_if.read(.addr(expected_axil_addr), .resp(response), .data(response_data));
+  //     check_resp(.expected(OKAY), .actual(response));
+
+  //     // store packet into the expected map
+  //     expected_data[expected_axil_addr] = expected_data;
+
+  //     // scoreboarding(check result)
+  //     check_addr_data(.addr(addr
+  //   end
+  // endtask
+
+  task automatic continuous_test(int iteration = 10);
+    $display("continuous_test started");
 
     repeat (iteration) begin
-      // randomize expected_packet
-      expected_axil_addr = $random;
-      expected_data      = $random;
+      axil_data_t data;
+      axil_addr_t addr;
+      axil_resp_e response;
 
-      // read-write to dut
-      axil_if.write(.addr(expected_axil_addr), .data(expected_data), .resp(response));
+      addr = $random;
+      data = $random;
+
+      axil_if.write(.addr(addr), .data(data), .resp(response));
       check_resp(.expected(OKAY), .actual(response));
 
-      axil_if.read(.addr(expected_axil_addr), .resp(response), .data(response_data));
+      // store packet into the expected map
+      expected_data[addr] = data;
+    end
+
+    repeat (iteration) begin
+      axil_data_t data;
+      axil_addr_t addr;
+      axil_resp_e response;
+
+      axil_if.read(.addr(addr), .resp(response), .data(data));
       check_resp(.expected(OKAY), .actual(response));
 
       // scoreboarding(check result)
-      if (expected_data == response_data) begin
-        $display($sformatf("OK. Time == %f", $time));
-      end else begin
-        vga_scoreboard_error scoreboard_error = new(vga_scoreboard_error::ScbErrorDataMismatch);
-        $fatal(1, scoreboard_error.print_log(.expected($sformatf("0x%x", expected_data)),
-                                            .actual  ($sformatf("0x%x", response_data       ))));
-      end
+      check_addr_data(.addr(addr), .actual_data(data));
     end
+
+    $display("continuous_test ended");
   endtask
 
   initial begin : master
     // Set up environment
     clk_if.start_clk();
     reset();
-    random_test();
+    continuous_test();
   end
 endmodule
