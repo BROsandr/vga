@@ -127,6 +127,8 @@ module tb_axil_fsm ();
   // endtask
 
   task automatic continuous_test(int iteration = 10);
+    int unsigned word_counter = 0;
+
     $display("continuous_test started");
 
     repeat (iteration) begin
@@ -134,8 +136,9 @@ module tb_axil_fsm ();
       axil_addr_t addr;
       axil_resp_e response;
 
-      addr = $random;
-      data = $random;
+      addr          = axil_addr_t'(word_counter);
+      data          = axil_addr_t'(word_counter);
+      word_counter += AXIL_ADDR_WIDTH / $size(byte);
 
       axil_if.write(.addr(addr), .data(data), .resp(response));
       check_resp(.expected(OKAY), .actual(response));
@@ -144,10 +147,15 @@ module tb_axil_fsm ();
       expected_data[addr] = data;
     end
 
+    word_counter = 0;
+
     repeat (iteration) begin
       axil_data_t data;
       axil_addr_t addr;
       axil_resp_e response;
+
+      addr          = axil_addr_t'(word_counter);
+      word_counter += AXIL_ADDR_WIDTH / $size(byte);
 
       axil_if.read(.addr(addr), .resp(response), .data(data));
       check_resp(.expected(OKAY), .actual(response));
