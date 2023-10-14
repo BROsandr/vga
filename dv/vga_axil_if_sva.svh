@@ -151,6 +151,21 @@ sva_ar_handshake_r_handshake : assert property (
   $error("ar_handshake and r_handshake are simultaneous");
 end
 
+import vga_axil_pkg::AXIL_WIDTH_OFFSET;
+sva_unaligned_w_addr : assert property (
+  @(posedge clk)
+  awvalid |-> awaddr[AXIL_WIDTH_OFFSET-1:0] == '0
+)  else begin
+  $error("w_addr is not word aligned");
+end
+
+sva_unaligned_r_addr : assert property (
+  @(posedge clk)
+  arvalid |-> araddr[AXIL_WIDTH_OFFSET-1:0] == '0
+)  else begin
+  $error("r_addr is not word aligned");
+end
+
 // START unsupported pipeline mode check
 sva_aw_handshake : assert property (
   @(posedge clk)
