@@ -79,6 +79,8 @@ module vga_axil_slave_fsm
   logic         addr_read_en;
 
   assign      addr_read_en   = read_state_next == StAddr;
+
+  import      vga_axil_pkg::axil2native_addr;
   assign      addr_read_next = axil2native_addr(axil_if.araddr);
 
   always_ff @(posedge axil_if.clk or negedge axil_if.arst_n) begin
