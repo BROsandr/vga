@@ -104,33 +104,37 @@ module tb_axil_fsm ();
     arst_n_if.arst_n <= 1'b1;
   endtask
 
-  initial begin : master
+  task automatic random_test(int iteration = 10);
     axil_data_t response_data;
     axil_resp_e response;
 
+    repeat (iteration) begin
+      // randomize expected_packet
+      expected_axil_addr = $random;
+      expected_data      = $random;
+
+      // read-write to dut
+      axil_if.write(.addr(expected_axil_addr), .data(expected_data), .resp(response));
+      check_resp(.expected(OKAY), .actual(response));
+
+      axil_if.read(.addr(expected_axil_addr), .resp(response), .data(response_data));
+      check_resp(.expected(OKAY), .actual(response));
+
+      // scoreboarding(check result)
+      if (expected_data == response_data) begin
+        $display($sformatf("OK. Time == %f", $time));
+      end else begin
+        vga_scoreboard_error scoreboard_error = new(vga_scoreboard_error::ScbErrorDataMismatch);
+        $fatal(1, scoreboard_error.print_log(.expected($sformatf("0x%x", expected_data)),
+                                            .actual  ($sformatf("0x%x", response_data       ))));
+      end
+    end
+  endtask
+
+  initial begin : master
     // Set up environment
     clk_if.start_clk();
     reset();
-
-
-    // randomize expected_packet
-    expected_axil_addr = $random;
-    expected_data      = $random;
-
-    // read-write to dut
-    axil_if.write(.addr(expected_axil_addr), .data(expected_data), .resp(response));
-    check_resp(.expected(OKAY), .actual(response));
-
-    axil_if.read(.addr(expected_axil_addr), .resp(response), .data(response_data));
-    check_resp(.expected(OKAY), .actual(response));
-
-    // scoreboarding(check result)
-    if (expected_data == response_data) begin
-      $display($sformatf("OK. Time == %f", $time));
-    end else begin
-      vga_scoreboard_error scoreboard_error = new(vga_scoreboard_error::ScbErrorDataMismatch);
-      $fatal(1, scoreboard_error.print_log(.expected($sformatf("0x%x", expected_data)),
-                                           .actual  ($sformatf("0x%x", response_data       ))));
-    end
+    random_test();
   end
 endmodule
