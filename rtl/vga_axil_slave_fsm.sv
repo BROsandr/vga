@@ -12,10 +12,6 @@ module vga_axil_slave_fsm
   output logic       read_en_o,
   output logic       write_en_o
 );
-  import vga_axil_pkg::AXIL_ADDR_WIDTH, vga_axil_pkg::AXIL_WIDTH_OFFSET;
-  function automatic native_addr_t axil2native_addr(axil_addr_t axil_addr);
-    return axil_addr[AXIL_ADDR_WIDTH-1:AXIL_WIDTH_OFFSET];
-  endfunction
 
 // START fsm state_ff, state_next logic
   localparam int  NUM_OF_STATES = 5;
