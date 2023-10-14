@@ -2,9 +2,9 @@
 
 module tb_axil_fsm ();
 
-  vga_clk_if         clk_if();
-  vga_arst_n_if      arst_n_if(clk_if.clk);
-  vga_axil_if        axil_if(clk_if.clk, arst_n_if.arst_n);
+  vga_clk_if         clk_if    ();
+  vga_arst_n_if      arst_n_if (clk_if.clk);
+  vga_axil_if        axil_if   (clk_if.clk, arst_n_if.arst_n);
 
   import vga_axil_pkg::*;
   axil_data_t expected_data[native_addr_t];
@@ -17,7 +17,7 @@ module tb_axil_fsm ();
   logic         read_en;
   logic         write_en;
 
-  vga_axil_slave_fsm axil_slave_fsm(
+  vga_axil_slave_fsm axil_slave_fsm (
     .axil_if,
     .data_i       (data2axil),
     .addr_write_o (addr_write),
