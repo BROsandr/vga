@@ -3,7 +3,8 @@ class vga_scoreboard_error;
   parameter type scoreboard_error_e = enum bit [$clog2(SCB_NUM_OF_ERRORS)-1:0] {
     ScbErrorAddrMismatch,
     ScbErrorDataMismatch,
-    ScbErrorRespMismatch
+    ScbErrorRespMismatch,
+    ScbErrorUnexpectedAddr
   };
   scoreboard_error_e error;
 
@@ -11,7 +12,7 @@ class vga_scoreboard_error;
     this.error = error;
   endfunction
 
-  function string print_log(string expected, string actual);
+  function string print_log(string expected = "", string actual = "");
     unique case (error)
       ScbErrorAddrMismatch: begin
         return $sformatf(
@@ -25,6 +26,10 @@ class vga_scoreboard_error;
       ScbErrorRespMismatch: begin
         return $sformatf("ERROR. TIME == %f. Resp mismatch. Expected Resp == %s, actual Resp == %s",
             $time, expected, actual);
+      end
+      ScbErrorUnexpectedAddr: begin
+        return $sformatf("ERROR. TIME == %f. Unexpected address. Expected address == %s",
+            $time, expected);
       end
     endcase
   endfunction
