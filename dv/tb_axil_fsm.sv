@@ -33,7 +33,7 @@ module tb_axil_fsm ();
     if (write_en) begin
       actual_data[addr_write] = data2native;
 
-      $display($sformatf("OK. Time == %f. Slave. Write. Addr == %d, Data == %d",
+      $display($sformatf("OK. Time == %f. Slave. Write. Addr == 0x%x, Data == 0x%x",
           $time, addr_write, data2native));
     end
   endtask
@@ -44,7 +44,7 @@ module tb_axil_fsm ();
     if (read_en) begin
       data2axil <= actual_data[addr_read];
 
-      $display($sformatf("OK. Time == %f. Slave. Read. Addr == %d, Data == %d",
+      $display($sformatf("OK. Time == %f. Slave. Read. Addr == 0x%x, Data == 0x%x",
           $time, addr_read, data2axil));
     end
   endtask
