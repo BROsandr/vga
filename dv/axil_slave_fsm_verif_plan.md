@@ -12,8 +12,8 @@ An *associative array* acts as the *slave*.
 
 1.  ### Continuous
 
-    [*n* number] of [sequential(non parallel) write] of sequentially incremented data values at
-    sequentially incremented addresses. *Example*: 0: 0, 8: 8, 16: 16, ...
+    [*n* number] of [continuous(non parallel) write] of continuously incremented data values at
+    continuously incremented addresses. *Example*: 0: 0, 8: 8, 16: 16, ...
 
     Then
 
