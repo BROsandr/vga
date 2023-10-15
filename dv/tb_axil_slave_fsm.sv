@@ -87,12 +87,12 @@ module tb_axil_slave_fsm ();
     end
   endfunction
 
-  task automatic reset(time delay = 100ns);
+  task automatic reset(time duration = 100ns);
     $info("reseted");
     clear();
     arst_n_if.arst_n <= 1'b0;
     axil_if.reset_master();
-    #delay;
+    #duration;
     arst_n_if.arst_n <= 1'b1;
   endtask
 
