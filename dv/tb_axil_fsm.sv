@@ -174,5 +174,7 @@ module tb_axil_fsm ();
     clk_if.start_clk();
     reset();
     continuous_test();
+
+    $finish();
   end
 endmodule
