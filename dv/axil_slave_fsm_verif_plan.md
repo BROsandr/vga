@@ -24,6 +24,8 @@ An *associative array* acts as the *slave*.
     [*n* number] of [independent(maybe parallel) read-write] [arbitrary delay] [random address-data]
     transactions.
 
+    Reading is performed from the written address pool.
+
 1.  ### Reset
 
     One asynchronous reset in a middle of [random test](#random).
