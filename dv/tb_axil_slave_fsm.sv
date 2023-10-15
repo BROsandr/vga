@@ -162,11 +162,13 @@ module tb_axil_slave_fsm ();
           axil_resp_e response;
 
           int unsigned delay;
-          std::randomize(delay) with {delay inside {[0:10]};};
+          if (!std::randomize(delay) with {delay inside {[0:10]};}) $error("randomization failed");
           repeat (delay) @(posedge axil_if.clk);
 
-          std::randomize(addr) with {addr[AXIL_WIDTH_OFFSET-1:0] == '0;};
-          std::randomize(data);
+          if (!std::randomize(addr) with {addr[vga_axil_pkg::AXIL_WIDTH_OFFSET-1:0] == '0;}) begin
+            $error("randomization failed");
+          end
+          if (!std::randomize(data)) $error("randomization failed");
 
           axil_if.write(.addr(addr), .data(data), .resp(response));
           check_resp(.expected(OKAY), .actual(response));
@@ -184,7 +186,9 @@ module tb_axil_slave_fsm ();
           axil_resp_e response;
 
           int unsigned delay;
-          std::randomize(delay) with {delay inside {[0:10]};};
+          if (!std::randomize(delay) with {delay inside {[0:10]};}) begin
+            $error("randomization failed");
+          end
           repeat (delay) @(posedge axil_if.clk);
 
           wait(address_pool.size() != 0);
