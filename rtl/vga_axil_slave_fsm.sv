@@ -1,3 +1,5 @@
+// The module converts axil input interface to simple native out interface.
+
 module vga_axil_slave_fsm
   import vga_axil_pkg::axil_data_t, vga_axil_pkg::axil_addr_t, vga_axil_pkg::native_addr_t;
 (
@@ -9,7 +11,7 @@ module vga_axil_slave_fsm
   output native_addr_t addr_read_o,
   output axil_data_t   data_o,
 
-  output logic       read_en_o,
+  output logic       read_en_sync_o, // Synchronous read.
   output logic       write_en_o
 );
 

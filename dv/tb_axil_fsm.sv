@@ -14,17 +14,17 @@ module tb_axil_fsm ();
   native_addr_t addr_write;
   native_addr_t addr_read;
   axil_data_t   data2native;
-  logic         read_en;
+  logic         read_en_sync;
   logic         write_en;
 
   vga_axil_slave_fsm axil_slave_fsm (
     .axil_if,
-    .data_i       (data2axil),
-    .addr_write_o (addr_write),
-    .addr_read_o  (addr_read),
-    .data_o       (data2native),
-    .read_en_o    (read_en),
-    .write_en_o   (write_en)
+    .data_i         (data2axil),
+    .addr_write_o   (addr_write),
+    .addr_read_o    (addr_read),
+    .data_o         (data2native),
+    .read_en_sync_o (read_en_sync),
+    .write_en_o     (write_en)
   );
 
   task automatic handle_write2slave();
@@ -41,7 +41,7 @@ module tb_axil_fsm ();
   task automatic handle_read2slave();
     @(posedge clk_if.clk);
 
-    if (read_en) begin
+    if (read_en_sync) begin
       data2axil <= actual_data[addr_read];
 
       $display($sformatf("OK. Time == %f. Slave. Read. Addr == 0x%x, Data == 0x%x",
