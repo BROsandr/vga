@@ -8,6 +8,7 @@ The current document describes a verification plan for
 1.  [test suit](#test-suit)
 1.  [list of tests](#list-of-tests)
     1.  [continuous test](#continuous)
+    1.  [parallel test](#parallel)
     1.  [random test](#random)
     1.  [reset test](#reset)
 
@@ -31,6 +32,17 @@ An *associative array* acts as the *slave*.
     Простая и предсказуемая схема формирования адреса и данных позволяет верифицировать даже
     по временным диаграммам без особых трудностей. Таким образом осуществляется начальная
     верификация дизайна, и ошибка, если она есть, выявляется на изи.
+
+1.  ### Parallel
+
+    [1 number] of [parallel read-write] [random address-data]
+    transactions.
+
+    The read packet is prewritten in the slave.
+
+    **Purpose**:
+
+    Этот тест проверяет на способность параллельной работы каналов чтения-записи.
 
 1.  ### Random
 
