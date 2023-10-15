@@ -1,3 +1,5 @@
+// For explanations see verification plan.
+
 `include "./common/vga_scoreboard_error.svh"
 
 module tb_axil_slave_fsm ();
@@ -104,31 +106,7 @@ module tb_axil_slave_fsm ();
     end
   endfunction
 
-  // task automatic random_test(int iteration = 10);
-  //   axil_data_t response_data;
-  //   axil_resp_e response;
-
-  //   repeat (iteration) begin
-  //     // randomize expected_packet
-  //     expected_axil_addr = $random;
-  //     expected_data      = $random;
-
-  //     // read-write to dut
-  //     axil_if.write(.addr(expected_axil_addr), .data(expected_data), .resp(response));
-  //     check_resp(.expected(OKAY), .actual(response));
-
-  //     axil_if.read(.addr(expected_axil_addr), .resp(response), .data(response_data));
-  //     check_resp(.expected(OKAY), .actual(response));
-
-  //     // store packet into the expected map
-  //     expected_data[expected_axil_addr] = expected_data;
-
-  //     // scoreboarding(check result)
-  //     check_addr_data(.addr(addr
-  //   end
-  // endtask
-
-  task automatic continuous_test(int iteration = 10);
+  task automatic continuous_test(int unsigned iteration = 10);
     int unsigned word_counter = 0;
 
     $display("continuous_test started");
@@ -171,11 +149,55 @@ module tb_axil_slave_fsm ();
     $display("continuous_test ended");
   endtask
 
+  task automatic random_test(int unsigned iteration = 10);
+    axil_addr_t address_pool[$];
+
+    $display("random_test started");
+
+    $display("write started");
+    repeat (iteration) begin
+      axil_data_t data;
+      axil_addr_t addr;
+      axil_resp_e response;
+
+      std::randomize(addr) with {addr[AXIL_WIDTH_OFFSET-1:0] == '0;};
+      std::randomize(data);
+
+      axil_if.write(.addr(addr), .data(data), .resp(response));
+      check_resp(.expected(OKAY), .actual(response));
+
+      // store packet into the expected map
+      expected_data[addr] = data;
+      address_pool.push_back(addr);
+    end
+
+    $display("read started");
+
+    address_pool.shuffle();
+
+    for (int unsigned i = 0; i < iteration; ++i) begin
+      axil_data_t data;
+      axil_addr_t addr;
+      axil_resp_e response;
+
+      addr = address_pool[i];
+
+      axil_if.read(.addr(addr), .resp(response), .data(data));
+      check_resp(.expected(OKAY), .actual(response));
+
+      // scoreboarding(check result)
+      check_addr_data(.addr(addr), .actual_data(data));
+    end
+
+    $display("random_test ended");
+  endtask
+
   initial begin : master
     // Set up environment
     clk_if.start_clk();
     reset();
     continuous_test();
+    random_test();
 
     $finish();
   end
