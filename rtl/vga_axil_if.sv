@@ -161,5 +161,5 @@ interface vga_axil_if
     reset_master_r_chan();
   endfunction
 
-  `include "../dv/vga_axil_if_sva.svh"
+  `include "sva/vga_axil_if_sva.svh"
 endinterface

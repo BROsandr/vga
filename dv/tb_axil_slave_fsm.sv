@@ -2,7 +2,7 @@
 timeunit      1ns;
 timeprecision 1ps;
 
-`include "./common/vga_scoreboard_error.svh"
+`include "errors/vga_scoreboard_error.svh"
 
 module tb_axil_slave_fsm ();
 

@@ -26,5 +26,5 @@ interface vga_native_if #(
   logic         write_en;    // One clock width.
 // END write2axil_channel
 
-  `include "../dv/vga_native_if_sva.svh"
+  `include "sva/vga_native_if_sva.svh"
 endinterface
