@@ -87,10 +87,12 @@ module tb_axil_slave_fsm ();
     end
   endfunction
 
-  task automatic reset();
+  task automatic reset(time delay = 100ns);
+    $info("reseted");
+    clear();
     arst_n_if.arst_n <= 1'b0;
     axil_if.reset_master();
-    #100ns;
+    #delay;
     arst_n_if.arst_n <= 1'b1;
   endtask
 
@@ -262,7 +264,7 @@ module tb_axil_slave_fsm ();
   initial begin : master
     // Set up environment
     clk_if.start_clk();
-    reset();
+    reset(100ns);
     continuous_test();
     clear();
     parallel_test();
