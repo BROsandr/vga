@@ -91,17 +91,17 @@ module vga_axil_slave_fsm
   end
 // END addr_read_ff
 
-// START read_en
-  logic read_en_ff;
-  logic read_en_next;
+// START read_en_sync
+  logic read_en_sync_ff;
+  logic read_en_sync_next;
 
-  assign read_en_next = read_state_next == StAddr;
+  assign read_en_sync_next = read_state_next == StAddr;
 
   always_ff @(posedge axil_if.clk or negedge axil_if.arst_n) begin
-    if      (!axil_if.arst_n) read_en_ff <= '0;
-    else                      read_en_ff <= read_en_next;
+    if      (!axil_if.arst_n) read_en_sync_ff <= '0;
+    else                      read_en_sync_ff <= read_en_sync_next;
   end
-// END read_en
+// END read_en_sync
 
 // START axil_if.rrvalid
   logic rvalid_ff;
@@ -197,11 +197,11 @@ module vga_axil_slave_fsm
 // END write logic
 
 // START out assignments
-  assign addr_write_o = addr_write_ff;
-  assign addr_read_o  = addr_read_ff;
-  assign read_en_o    = read_en_ff;
-  assign write_en_o   = write_en_ff;
-  assign data_o       = data_out_ff;
+  assign addr_write_o   = addr_write_ff;
+  assign addr_read_o    = addr_read_ff;
+  assign read_en_sync_o = read_en_sync_ff;
+  assign write_en_o     = write_en_ff;
+  assign data_o         = data_out_ff;
 
   assign axil_if.arready = arready_ff;
   assign axil_if.awready = awready_ff;
