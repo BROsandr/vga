@@ -261,6 +261,44 @@ module tb_axil_slave_fsm ();
     $display("random_test ended");
   endtask
 
+  task automatic reset_test(int unsigned iteration = 10);
+    time               duration;
+    const int unsigned min_duration = 50ns;
+    const int unsigned max_duration = 100ns;
+    if (!std::randomize(duration) with {duration inside {[min_duration:max_duration]};}) begin
+      $error("randomization failed");
+    end
+
+    $display("reset_test started");
+
+    fork begin
+      fork
+        begin : process
+          random_test();
+          $warning("Normal flow.");
+        end
+
+        begin : reset_block
+          time               delay;
+          const int unsigned min_delay = 500ns;
+          const int unsigned max_delay = 1000ns;
+          if (!std::randomize(delay) with {delay inside {[min_delay:max_delay]};}) begin
+            $error("randomization failed");
+          end
+
+          #delay;
+        end
+      join_any
+      disable fork;
+    end join
+
+    reset(duration);
+
+    random_test();
+
+    $display("reset_test ended");
+  endtask
+
   initial begin : master
     // Set up environment
     clk_if.start_clk();
@@ -270,6 +308,8 @@ module tb_axil_slave_fsm ();
     parallel_test();
     clear();
     random_test();
+    clear();
+    reset_test();
 
     $finish();
   end
