@@ -154,40 +154,52 @@ module tb_axil_slave_fsm ();
 
     $display("random_test started");
 
-    $display("write started");
-    repeat (iteration) begin
-      axil_data_t data;
-      axil_addr_t addr;
-      axil_resp_e response;
+    fork
+      begin : write
+        repeat (iteration) begin
+          axil_data_t data;
+          axil_addr_t addr;
+          axil_resp_e response;
 
-      std::randomize(addr) with {addr[AXIL_WIDTH_OFFSET-1:0] == '0;};
-      std::randomize(data);
+          int unsigned delay;
+          std::randomize(delay) with {delay inside {[0:10]};};
+          repeat (delay) @(posedge axil_if.clk);
 
-      axil_if.write(.addr(addr), .data(data), .resp(response));
-      check_resp(.expected(OKAY), .actual(response));
+          std::randomize(addr) with {addr[AXIL_WIDTH_OFFSET-1:0] == '0;};
+          std::randomize(data);
 
-      // store packet into the expected map
-      expected_data[addr] = data;
-      address_pool.push_back(addr);
-    end
+          axil_if.write(.addr(addr), .data(data), .resp(response));
+          check_resp(.expected(OKAY), .actual(response));
 
-    $display("read started");
+          // store packet into the expected map
+          expected_data[addr] = data;
+          address_pool.push_back(addr);
+        end
+      end
 
-    address_pool.shuffle();
+      begin : read
+        repeat (iteration) begin
+          axil_data_t data;
+          axil_addr_t addr;
+          axil_resp_e response;
 
-    for (int unsigned i = 0; i < iteration; ++i) begin
-      axil_data_t data;
-      axil_addr_t addr;
-      axil_resp_e response;
+          int unsigned delay;
+          std::randomize(delay) with {delay inside {[0:10]};};
+          repeat (delay) @(posedge axil_if.clk);
 
-      addr = address_pool[i];
+          wait(address_pool.size() != 0);
+          address_pool.shuffle();
 
-      axil_if.read(.addr(addr), .resp(response), .data(data));
-      check_resp(.expected(OKAY), .actual(response));
+          addr = address_pool[0];
 
-      // scoreboarding(check result)
-      check_addr_data(.addr(addr), .actual_data(data));
-    end
+          axil_if.read(.addr(addr), .resp(response), .data(data));
+          check_resp(.expected(OKAY), .actual(response));
+
+          // scoreboarding(check result)
+          check_addr_data(.addr(addr), .actual_data(data));
+        end
+      end
+    join
 
     $display("random_test ended");
   endtask
