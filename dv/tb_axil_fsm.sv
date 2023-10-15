@@ -47,7 +47,7 @@ module tb_axil_fsm ();
       data2axil <= actual_data[addr_read];
 
       $display($sformatf("OK. Time == %f. Slave. Read. Addr == 0x%x, Data == 0x%x",
-          $time, addr_read, data2axil));
+          $time, addr_read, actual_data[addr_read]));
     end
   endtask
 
@@ -140,7 +140,7 @@ module tb_axil_fsm ();
       axil_resp_e response;
 
       addr          = axil_addr_t'(word_counter);
-      data          = axil_addr_t'(word_counter);
+      data          = axil_data_t'(word_counter);
       word_counter += AXIL_ADDR_WIDTH / $size(byte);
 
       axil_if.write(.addr(addr), .data(data), .resp(response));
