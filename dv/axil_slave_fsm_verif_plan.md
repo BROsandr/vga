@@ -4,6 +4,13 @@ The current document describes a verification plan for
 [axil_slave_fsm](../rtl/vga_axil_slave_fsm.sv) module. The plan is implemented in
 [tb_axil_fsm](tb_axil_fsm.sv) module.
 
+***[TOC]***
+1.  [test suit](#test-suit)
+1.  [list of tests](#list-of-tests)
+    1.  [continuous test](#continuous)
+    1.  [random test](#random)
+    1.  [reset test](#reset)
+
 ## Test suit
 
 An *associative array* acts as the *slave*.
