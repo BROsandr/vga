@@ -92,7 +92,7 @@ module tb_axil_slave_fsm ();
     arst_n_if.arst_n <= 1'b1;
   endtask
 
-  function automatic check_addr_data(axil_addr_t addr, axil_data_t actual_data);
+  function automatic void check_addr_data(axil_addr_t addr, axil_data_t actual_data);
     if (!expected_data.exists(addr)) begin
       vga_scoreboard_error scoreboard_error = new(vga_scoreboard_error::ScbErrorUnexpectedAddr);
       $fatal(1, scoreboard_error.print_log(.expected($sformatf("0x%x", addr))));
