@@ -166,8 +166,8 @@ module tb_axil_slave_fsm ();
         axil_resp_e response;
 
         if (!std::randomize(addr) with {addr[AXIL_WIDTH_OFFSET-1:0] == '0;}) begin
-            $error("randomization failed");
-          end
+          $error("randomization failed");
+        end
         if (!std::randomize(data)) $error("randomization failed");
 
         axil_if.write(.addr(addr), .data(data), .resp(response));
@@ -180,8 +180,8 @@ module tb_axil_slave_fsm ();
         axil_resp_e response;
 
         if (!std::randomize(addr) with {addr[AXIL_WIDTH_OFFSET-1:0] == '0;}) begin
-            $error("randomization failed");
-          end
+          $error("randomization failed");
+        end
         if (!std::randomize(data)) $error("randomization failed");
 
         expected_data[addr] = data;
