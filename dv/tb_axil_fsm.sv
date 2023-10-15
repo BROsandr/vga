@@ -27,6 +27,8 @@ module tb_axil_fsm ();
     .write_en_o     (write_en)
   );
 
+  bind vga_axil_slave_fsm vga_axil_slave_fsm_sva vga_axil_slave_fsm_sva (.*);
+
   task automatic handle_write2slave();
     @(posedge clk_if.clk);
 
