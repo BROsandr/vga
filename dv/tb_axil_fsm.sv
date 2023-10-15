@@ -133,6 +133,7 @@ module tb_axil_fsm ();
 
     $display("continuous_test started");
 
+    $display("write started");
     repeat (iteration) begin
       axil_data_t data;
       axil_addr_t addr;
@@ -151,6 +152,7 @@ module tb_axil_fsm ();
 
     word_counter = 0;
 
+    $display("read started");
     repeat (iteration) begin
       axil_data_t data;
       axil_addr_t addr;
