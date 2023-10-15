@@ -19,6 +19,12 @@ An *associative array* acts as the *slave*.
 
     Read in the same way starting from the first written address.
 
+    **Purpose**:
+
+    Простая и предсказуемая схема формирования адреса и данных позволяет верифицировать даже
+    по временным диаграммам без особых трудностей. Таким образом осуществляется начальная
+    верификация дизайна, и ошибка, если она есть, выявляется на изи.
+
 1.  ### Random
 
     [*n* number] of [independent(maybe parallel) read-write] [arbitrary delay] [random address-data]
@@ -26,6 +32,14 @@ An *associative array* acts as the *slave*.
 
     Reading is performed from the written address pool.
 
+    **Purpose**:
+
+    Стандартный верификационный тест. Уповаем на удачу, что ошибка сама себя обнаружит.
+
 1.  ### Reset
 
     One asynchronous reset in a middle of [random test](#random).
+
+    **Purpose**:
+
+    Стандартный верификационный тест.
