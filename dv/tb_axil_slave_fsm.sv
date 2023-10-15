@@ -184,8 +184,8 @@ module tb_axil_slave_fsm ();
         end
         if (!std::randomize(data)) $error("randomization failed");
 
-        expected_data[addr] = data;
-        actual_data  [addr] = data;
+        expected_data[addr]                   = data;
+        actual_data  [axil2native_addr(addr)] = data;
 
         axil_if.read(.addr(addr), .resp(response), .data(data));
         check_resp(.expected(OKAY), .actual(response));
