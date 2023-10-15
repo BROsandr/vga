@@ -154,6 +154,8 @@ module tb_axil_slave_fsm ();
     $display("continuous_test ended");
   endtask
 
+  import vga_axil_pkg::AXIL_WIDTH_OFFSET;
+
   task automatic random_test(int unsigned iteration = 10);
     axil_addr_t address_pool[$];
 
@@ -170,7 +172,7 @@ module tb_axil_slave_fsm ();
           if (!std::randomize(delay) with {delay inside {[0:10]};}) $error("randomization failed");
           repeat (delay) @(posedge axil_if.clk);
 
-          if (!std::randomize(addr) with {addr[vga_axil_pkg::AXIL_WIDTH_OFFSET-1:0] == '0;}) begin
+          if (!std::randomize(addr) with {addr[AXIL_WIDTH_OFFSET-1:0] == '0;}) begin
             $error("randomization failed");
           end
           if (!std::randomize(data)) $error("randomization failed");
