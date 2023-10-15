@@ -106,6 +106,11 @@ module tb_axil_slave_fsm ();
     end
   endfunction
 
+  function automatic void clear();
+    expected_data.delete();
+    actual_data  .delete();
+  endfunction
+
   task automatic continuous_test(int unsigned iteration = 10);
     int unsigned word_counter = 0;
 
@@ -213,6 +218,7 @@ module tb_axil_slave_fsm ();
     clk_if.start_clk();
     reset();
     continuous_test();
+    clear();
     random_test();
 
     $finish();
