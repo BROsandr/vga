@@ -120,7 +120,7 @@ module vga_axil_slave_fsm
   axil_data_t rdata_next;
   logic       rdata_en;
 
-  assign rdata_en   = read_state_next == StData;
+  assign rdata_en   = read_state_next == StResp;
   assign rdata_next = data_i;
 
   always_ff @(posedge axil_if.clk or negedge axil_if.arst_n) begin

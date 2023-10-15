@@ -15,10 +15,13 @@ graph LR
       put *addr* into native
       set *read_en* == 1`"]
   StData["`**StData**
-      get *data* from native`"]
+      idle cycle
+      native should:
+      recognize *read_en*
+      put *data* in native if`"]
   StResp["`**StResp**
       set *rvalid* == 1
-      put *data* into axi`"]
+      put *data* into axi from native`"]
 ```
 
 ```mermaid
