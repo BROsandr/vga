@@ -1,8 +1,9 @@
-interface vga_native_if (
+interface vga_native_if #(
+  parameter type native_addr_t = vga_axil_pkg::native_addr_t,
+  parameter type axil_data_t   = vga_axil_pkg::axil_data_t
+) (
   vga_axil_if axil_if
 );
-  import vga_axil_pkg::native_addr_t, vga_axil_pkg::axil_addr_t, vga_axil_pkg::axil_data_t;
-
 // START clk, reset
   logic  clk;
   assign clk = axil_if.clk;
