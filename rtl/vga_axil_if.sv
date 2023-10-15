@@ -1,3 +1,6 @@
+// This is axi4 lite interface with sva.
+// For simplicity the interface places restrictions on users.
+
 interface vga_axil_if
   import vga_axil_pkg::axil_resp_e, vga_axil_pkg::axil_resp_t;
 #(

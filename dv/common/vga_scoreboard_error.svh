@@ -1,4 +1,8 @@
+// Contains all scoreboard errors which can be reported by a testbench.
+
 class vga_scoreboard_error;
+
+  // List of all scoreboard errors.
   localparam int unsigned SCB_NUM_OF_ERRORS = 3;
   localparam type scoreboard_error_e = enum bit [$clog2(SCB_NUM_OF_ERRORS)-1:0] {
     ScbErrorAddrMismatch,

@@ -1,3 +1,5 @@
+// This is a simple interface for addressed read/write connecting a slave to the axil converter.
+
 interface vga_native_if #(
   parameter type native_addr_t = vga_axil_pkg::native_addr_t,
   parameter type axil_data_t   = vga_axil_pkg::axil_data_t

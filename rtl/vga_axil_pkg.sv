@@ -1,3 +1,5 @@
+// The module contains various common declarations for axi4 lite designs.
+
 package vga_axil_pkg;
   parameter int unsigned AXIL_ADDR_WIDTH = 32;
   parameter type axil_addr_t = logic [AXIL_ADDR_WIDTH-1:0];
