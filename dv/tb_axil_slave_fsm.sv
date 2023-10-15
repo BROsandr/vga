@@ -1,6 +1,6 @@
 `include "./common/vga_scoreboard_error.svh"
 
-module tb_axil_fsm ();
+module tb_axil_slave_fsm ();
 
   vga_clk_if         clk_if    ();
   vga_arst_n_if      arst_n_if (clk_if.clk);
