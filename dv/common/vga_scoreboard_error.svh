@@ -16,20 +16,20 @@ class vga_scoreboard_error;
     unique case (error)
       ScbErrorAddrMismatch: begin
         return $sformatf(
-            "ERROR. TIME == %f. Address mismatch. Expected address == %s, actual address == %s",
-            $time, expected, actual);
+            "Address mismatch. Expected address == %s, actual address == %s",
+            expected, actual);
       end
       ScbErrorDataMismatch: begin
-        return $sformatf("ERROR. TIME == %f. Data mismatch. Expected data == %s, actual data == %s",
-            $time, expected, actual);
+        return $sformatf("Data mismatch. Expected data == %s, actual data == %s",
+            expected, actual);
       end
       ScbErrorRespMismatch: begin
-        return $sformatf("ERROR. TIME == %f. Resp mismatch. Expected Resp == %s, actual Resp == %s",
-            $time, expected, actual);
+        return $sformatf("Resp mismatch. Expected Resp == %s, actual Resp == %s",
+            expected, actual);
       end
       ScbErrorUnexpectedAddr: begin
-        return $sformatf("ERROR. TIME == %f. Unexpected address. Expected address == %s",
-            $time, expected);
+        return $sformatf("Unexpected address. Expected address == %s",
+            expected);
       end
     endcase
   endfunction
