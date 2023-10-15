@@ -156,6 +156,48 @@ module tb_axil_slave_fsm ();
 
   import vga_axil_pkg::AXIL_WIDTH_OFFSET;
 
+  task automatic parallel_test();
+    $display("parallel_test started");
+
+    fork
+      begin : write
+        axil_data_t data;
+        axil_addr_t addr;
+        axil_resp_e response;
+
+        if (!std::randomize(addr) with {addr[AXIL_WIDTH_OFFSET-1:0] == '0;}) begin
+            $error("randomization failed");
+          end
+        if (!std::randomize(data)) $error("randomization failed");
+
+        axil_if.write(.addr(addr), .data(data), .resp(response));
+        check_resp(.expected(OKAY), .actual(response));
+      end
+
+      begin : read
+        axil_data_t data;
+        axil_addr_t addr;
+        axil_resp_e response;
+
+        if (!std::randomize(addr) with {addr[AXIL_WIDTH_OFFSET-1:0] == '0;}) begin
+            $error("randomization failed");
+          end
+        if (!std::randomize(data)) $error("randomization failed");
+
+        expected_data[addr] = data;
+        actual_data  [addr] = data;
+
+        axil_if.read(.addr(addr), .resp(response), .data(data));
+        check_resp(.expected(OKAY), .actual(response));
+
+        // scoreboarding(check result)
+        check_addr_data(.addr(addr), .actual_data(data));
+      end
+    join
+
+    $display("parallel_test ended");
+  endtask
+
   task automatic random_test(int unsigned iteration = 10);
     axil_addr_t address_pool[$];
 
@@ -220,6 +262,8 @@ module tb_axil_slave_fsm ();
     clk_if.start_clk();
     reset();
     continuous_test();
+    clear();
+    parallel_test();
     clear();
     random_test();
 
