@@ -119,7 +119,8 @@ function automatic void check_sequence(valid_sequence actual_sequence);
   end
 endfunction
 
-always_ff @(posedge clk) begin : check_write_sequence
+always_ff @(posedge clk or negedge arst_n) begin : check_write_sequence
+  if (!arst_n) write_sequence.delete();
   if ($rose(awvalid)) write_sequence.push_back(AddrValid);
   if ($rose(wvalid))  write_sequence.push_back(DataValid);
   if ($rose(bvalid)) begin
@@ -128,7 +129,8 @@ always_ff @(posedge clk) begin : check_write_sequence
   end
 end
 
-always_ff @(posedge clk) begin : check_read_sequence
+always_ff @(posedge clk or negedge arst_n) begin : check_read_sequence
+  if (!arst_n) read_sequence.delete();
   if ($rose(arvalid)) read_sequence.push_back(AddrValid);
   if ($rose(rvalid)) begin
     read_sequence.push_back(DataValid);
