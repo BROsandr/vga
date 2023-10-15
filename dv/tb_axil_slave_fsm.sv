@@ -7,51 +7,43 @@ timeprecision 1ps;
 module tb_axil_slave_fsm ();
 
   vga_clk_if         clk_if    ();
-  vga_arst_n_if      arst_n_if (clk_if.clk);
-  vga_axil_if        axil_if   (clk_if.clk, arst_n_if.arst_n);
+  vga_arst_n_if      arst_n_if (
+    .clk (clk_if.clk)
+  );
+  vga_axil_if        axil_if   (
+    .clk    (clk_if.clk),
+    .arst_n (arst_n_if.arst_n)
+  );
+  vga_native_if      native_if (.axil_if);
 
   import vga_axil_pkg::*;
   axil_data_t expected_data[native_addr_t];
   axil_data_t actual_data  [native_addr_t];
 
-  axil_data_t   data2axil;
-  native_addr_t addr_write;
-  native_addr_t addr_read;
-  axil_data_t   data2native;
-  logic         read_en_sync;
-  logic         write_en;
-
   vga_axil_slave_fsm axil_slave_fsm (
     .axil_if,
-    .data_i         (data2axil),
-    .addr_write_o   (addr_write),
-    .addr_read_o    (addr_read),
-    .data_o         (data2native),
-    .read_en_sync_o (read_en_sync),
-    .write_en_o     (write_en)
+    .native_if
   );
-
-  bind vga_axil_slave_fsm vga_axil_slave_fsm_sva vga_axil_slave_fsm_sva (.*);
 
   task automatic handle_write2slave();
     @(posedge clk_if.clk);
 
-    if (write_en) begin
-      actual_data[addr_write] = data2native;
+    if (native_if.write_en) begin
+      actual_data[native_if.addr_write] = native_if.data2native;
 
       $display($sformatf("OK. Time == %f. Slave. Write. Addr == 0x%x, Data == 0x%x",
-          $time, addr_write, data2native));
+          $time, native_if.addr_write, native_if.data2native));
     end
   endtask
 
   task automatic handle_read2slave();
     @(posedge clk_if.clk);
 
-    if (read_en_sync) begin
-      data2axil <= actual_data[addr_read];
+    if (native_if.read_en_sync) begin
+      native_if.data2axil <= actual_data[native_if.addr_read];
 
       $display($sformatf("OK. Time == %f. Slave. Read. Addr == 0x%x, Data == 0x%x",
-          $time, addr_read, actual_data[addr_read]));
+          $time, native_if.addr_read, actual_data[native_if.addr_read]));
     end
   endtask
 

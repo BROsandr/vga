@@ -3,16 +3,8 @@
 module vga_axil_slave_fsm
   import vga_axil_pkg::axil_data_t, vga_axil_pkg::axil_addr_t, vga_axil_pkg::native_addr_t;
 (
-  vga_axil_if        axil_if,
-
-  input  axil_data_t data_i,
-
-  output native_addr_t addr_write_o,
-  output native_addr_t addr_read_o,
-  output axil_data_t   data_o,
-
-  output logic       read_en_sync_o, // Synchronous read.
-  output logic       write_en_o
+  vga_axil_if   axil_if,
+  vga_native_if native_if
 );
 
 // START fsm state_ff, state_next logic
@@ -121,7 +113,7 @@ module vga_axil_slave_fsm
   logic       rdata_en;
 
   assign rdata_en   = read_state_next == StResp;
-  assign rdata_next = data_i;
+  assign rdata_next = native_if.data2axil;
 
   always_ff @(posedge axil_if.clk or negedge axil_if.arst_n) begin
     if      (!axil_if.arst_n) rdata_ff <= '0;
@@ -197,11 +189,11 @@ module vga_axil_slave_fsm
 // END write logic
 
 // START out assignments
-  assign addr_write_o   = addr_write_ff;
-  assign addr_read_o    = addr_read_ff;
-  assign read_en_sync_o = read_en_sync_ff;
-  assign write_en_o     = write_en_ff;
-  assign data_o         = data_out_ff;
+  assign native_if.addr_write   = addr_write_ff;
+  assign native_if.addr_read    = addr_read_ff;
+  assign native_if.read_en_sync = read_en_sync_ff;
+  assign native_if.write_en     = write_en_ff;
+  assign native_if.data2native  = data_out_ff;
 
   assign axil_if.arready = arready_ff;
   assign axil_if.awready = awready_ff;
