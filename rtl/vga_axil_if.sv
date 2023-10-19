@@ -10,7 +10,7 @@ interface vga_axil_if
   input logic clk,
   input logic arst_n
 );
-  localparam type axil_strb_t = logic [$size(axil_data_t) / $size(byte) - 1 : 0];
+  localparam type axil_strb_t = logic [$size(axil_data_t) / $bits(byte) - 1 : 0];
 
   // AR-channel
   axil_addr_t araddr;
