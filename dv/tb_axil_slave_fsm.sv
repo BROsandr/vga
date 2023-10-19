@@ -48,7 +48,6 @@ module tb_axil_slave_fsm ();
   endtask
 
   initial begin : slave
-    axil_if.reset_slave();
     fork begin
       forever begin
         wait(axil_if.arst_n);
@@ -63,7 +62,6 @@ module tb_axil_slave_fsm ();
 
           begin
             wait(!axil_if.arst_n);
-            axil_if.reset_slave();
           end
         join_any
         disable fork;

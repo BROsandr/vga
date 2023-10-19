@@ -106,33 +106,6 @@ interface vga_axil_if
     reset_master_w_chan();
   endtask
 
-  function automatic void reset_slave_w_chan(); // Only reset the axil specific(not clk, not reset)
-    // AW-channel
-    awready <= '0;
-
-    // W-channle
-    wready <= '0;
-
-    // B-channel
-    bresp  <= '0;
-    bvalid <= '0;
-  endfunction
-
-  function automatic void reset_slave_r_chan(); // Only reset the axil specific(not clk, not reset)
-    // AR-channel
-    arready <= '0;
-
-    // R-channel
-    rdata  <= '0;
-    rresp  <= '0;
-    rvalid <= '0;
-  endfunction
-
-  function automatic void reset_slave(); // Only reset the axil specific(not clk, not reset)
-    reset_slave_w_chan();
-    reset_slave_r_chan();
-  endfunction
-
   function automatic void reset_master_w_chan(); // Only reset the axil specific(not clk, not reset)
     // AW-channel
     awaddr  <= '0;
