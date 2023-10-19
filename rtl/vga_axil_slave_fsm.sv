@@ -3,8 +3,8 @@
 module vga_axil_slave_fsm
   import vga_axil_pkg::axil_data_t, vga_axil_pkg::axil_addr_t, vga_axil_pkg::native_addr_t;
 (
-  vga_axil_if   axil_if,
-  vga_native_if native_if
+  vga_axil_if.slave axil_if,
+  vga_native_if     native_if
 );
 
 // START fsm state_ff, state_next logic
@@ -18,8 +18,8 @@ module vga_axil_slave_fsm
   };
   state_e read_state_ff, read_state_next, write_state_ff, write_state_next;
 
-  always_ff @(posedge axil_if.clk or negedge axil_if.arst_n) begin
-    if (!axil_if.arst_n) begin
+  always_ff @(posedge axil_if.clk_i or negedge axil_if.arst_ni) begin
+    if (!axil_if.arst_ni) begin
       read_state_ff  <= StIdle;
       write_state_ff <= StIdle;
     end else begin
@@ -33,23 +33,23 @@ module vga_axil_slave_fsm
   always_comb begin : read
     read_state_next = read_state_ff;
     unique case (read_state_ff)
-      StIdle: if (axil_if.ar_handshake) read_state_next = StAddr;
-      StAddr:                           read_state_next = StData;
-      StData:                           read_state_next = StResp;
-      StResp: if (axil_if.r_handshake)  read_state_next = StIdle;
+      StIdle: if (axil_if.ar_handshake_i) read_state_next = StAddr;
+      StAddr:                             read_state_next = StData;
+      StData:                             read_state_next = StResp;
+      StResp: if (axil_if.r_handshake_i)  read_state_next = StIdle;
 
-      default:                          read_state_next = StIdle;
+      default:                            read_state_next = StIdle;
     endcase
   end
 
   always_comb begin : write
     write_state_next = write_state_ff;
     unique case (write_state_ff)
-      StIdle    : if (axil_if.aw_handshake && axil_if.w_handshake) write_state_next = StAddrData;
-      StAddrData:                                                  write_state_next = StResp;
-      StResp    : if (axil_if.b_handshake)                         write_state_next = StIdle;
+      StIdle    : if (axil_if.aw_handshake_i && axil_if.w_handshake_i) write_state_next = StAddrData;
+      StAddrData:                                                      write_state_next = StResp;
+      StResp    : if (axil_if.b_handshake_i)                           write_state_next = StIdle;
 
-      default:                                                     write_state_next = StIdle;
+      default:                                                         write_state_next = StIdle;
     endcase
   end
 // END fsm state_ff, state_next logic
@@ -61,9 +61,9 @@ module vga_axil_slave_fsm
 
   assign arready_next = read_state_next == StIdle;
 
-  always_ff @(posedge axil_if.clk or negedge axil_if.arst_n) begin
-    if      (!axil_if.arst_n) arready_ff <= '0;
-    else                      arready_ff <= arready_next;
+  always_ff @(posedge axil_if.clk_i or negedge axil_if.arst_ni) begin
+    if      (!axil_if.arst_ni) arready_ff <= '0;
+    else                       arready_ff <= arready_next;
   end
 // END axil_if.arready
 
@@ -75,11 +75,11 @@ module vga_axil_slave_fsm
   assign      addr_read_en   = read_state_next == StAddr;
 
   import      vga_axil_pkg::axil2native_addr;
-  assign      addr_read_next = axil2native_addr(axil_if.araddr);
+  assign      addr_read_next = axil2native_addr(axil_if.araddr_i);
 
-  always_ff @(posedge axil_if.clk or negedge axil_if.arst_n) begin
-    if      (!axil_if.arst_n) addr_read_ff <= '0;
-    else if (addr_read_en   ) addr_read_ff <= addr_read_next;
+  always_ff @(posedge axil_if.clk_i or negedge axil_if.arst_ni) begin
+    if      (!axil_if.arst_ni) addr_read_ff <= '0;
+    else if (addr_read_en    ) addr_read_ff <= addr_read_next;
   end
 // END addr_read_ff
 
@@ -89,9 +89,9 @@ module vga_axil_slave_fsm
 
   assign read_en_sync_next = read_state_next == StAddr;
 
-  always_ff @(posedge axil_if.clk or negedge axil_if.arst_n) begin
-    if      (!axil_if.arst_n) read_en_sync_ff <= '0;
-    else                      read_en_sync_ff <= read_en_sync_next;
+  always_ff @(posedge axil_if.clk_i or negedge axil_if.arst_ni) begin
+    if      (!axil_if.arst_ni) read_en_sync_ff <= '0;
+    else                       read_en_sync_ff <= read_en_sync_next;
   end
 // END read_en_sync
 
@@ -101,9 +101,9 @@ module vga_axil_slave_fsm
 
   assign rvalid_next = read_state_next == StResp;
 
-  always_ff @(posedge axil_if.clk or negedge axil_if.arst_n) begin
-    if      (!axil_if.arst_n) rvalid_ff <= '0;
-    else                      rvalid_ff <= rvalid_next;
+  always_ff @(posedge axil_if.clk_i or negedge axil_if.arst_ni) begin
+    if      (!axil_if.arst_ni) rvalid_ff <= '0;
+    else                       rvalid_ff <= rvalid_next;
   end
 // END axil_if.rvalid
 
@@ -115,9 +115,9 @@ module vga_axil_slave_fsm
   assign rdata_en   = read_state_next == StResp;
   assign rdata_next = native_if.data2axil;
 
-  always_ff @(posedge axil_if.clk or negedge axil_if.arst_n) begin
-    if      (!axil_if.arst_n) rdata_ff <= '0;
-    else if (rdata_en       ) rdata_ff <= rdata_next;
+  always_ff @(posedge axil_if.clk_i or negedge axil_if.arst_ni) begin
+    if      (!axil_if.arst_ni) rdata_ff <= '0;
+    else if (rdata_en        ) rdata_ff <= rdata_next;
   end
 // END axil_if.rdata
 // END read logic
@@ -129,9 +129,9 @@ module vga_axil_slave_fsm
 
   assign write_en_next = write_state_next == StAddrData;
 
-  always_ff @(posedge axil_if.clk or negedge axil_if.arst_n) begin
-    if      (!axil_if.arst_n) write_en_ff <= '0;
-    else                      write_en_ff <= write_en_next;
+  always_ff @(posedge axil_if.clk_i or negedge axil_if.arst_ni) begin
+    if      (!axil_if.arst_ni) write_en_ff <= '0;
+    else                       write_en_ff <= write_en_next;
   end
 // END write_en
 
@@ -141,9 +141,9 @@ module vga_axil_slave_fsm
 
   assign bvalid_next = write_state_next == StResp;
 
-  always_ff @(posedge axil_if.clk or negedge axil_if.arst_n) begin
-    if      (!axil_if.arst_n) bvalid_ff <= '0;
-    else                      bvalid_ff <= bvalid_next;
+  always_ff @(posedge axil_if.clk_i or negedge axil_if.arst_ni) begin
+    if      (!axil_if.arst_ni) bvalid_ff <= '0;
+    else                       bvalid_ff <= bvalid_next;
   end
 // END axil_if.bvalid
 
@@ -153,9 +153,9 @@ module vga_axil_slave_fsm
 
   assign awready_next = read_state_next == StIdle;
 
-  always_ff @(posedge axil_if.clk or negedge axil_if.arst_n) begin
-    if      (!axil_if.arst_n) awready_ff <= '0;
-    else                      awready_ff <= awready_next;
+  always_ff @(posedge axil_if.clk_i or negedge axil_if.arst_ni) begin
+    if      (!axil_if.arst_ni) awready_ff <= '0;
+    else                       awready_ff <= awready_next;
   end
 // END axil_if.awready
 
@@ -165,11 +165,11 @@ module vga_axil_slave_fsm
   logic       data_out_en;
 
   assign      data_out_en   = write_state_next == StAddrData;
-  assign      data_out_next = axil_if.wdata;
+  assign      data_out_next = axil_if.wdata_i;
 
-  always_ff @(posedge axil_if.clk or negedge axil_if.arst_n) begin
-    if      (!axil_if.arst_n    ) data_out_ff <= '0;
-    else if (data_out_en        ) data_out_ff <= data_out_next;
+  always_ff @(posedge axil_if.clk_i or negedge axil_if.arst_ni) begin
+    if      (!axil_if.arst_ni) data_out_ff <= '0;
+    else if (data_out_en     ) data_out_ff <= data_out_next;
   end
 // END data_ff
 
@@ -179,11 +179,11 @@ module vga_axil_slave_fsm
   logic         addr_write_en;
 
   assign      addr_write_en   = write_state_next == StAddrData;
-  assign      addr_write_next = axil2native_addr(axil_if.awaddr);
+  assign      addr_write_next = axil2native_addr(axil_if.awaddr_i);
 
-  always_ff @(posedge axil_if.clk or negedge axil_if.arst_n) begin
-    if      (!axil_if.arst_n    ) addr_write_ff <= '0;
-    else if (addr_write_en      ) addr_write_ff <= addr_write_next;
+  always_ff @(posedge axil_if.clk_i or negedge axil_if.arst_ni) begin
+    if      (!axil_if.arst_ni) addr_write_ff <= '0;
+    else if (addr_write_en   ) addr_write_ff <= addr_write_next;
   end
 // END addr_write_ff
 // END write logic
@@ -195,16 +195,16 @@ module vga_axil_slave_fsm
   assign native_if.write_en     = write_en_ff;
   assign native_if.data2native  = data_out_ff;
 
-  assign axil_if.arready = arready_ff;
-  assign axil_if.awready = awready_ff;
-  assign axil_if.wready  = awready_ff; // simultaneous with axil_if.awready
-  assign axil_if.bvalid  = bvalid_ff;
-  assign axil_if.rvalid  = rvalid_ff;
-  assign axil_if.rdata   = rdata_ff;
+  assign axil_if.arready_o = arready_ff;
+  assign axil_if.awready_o = awready_ff;
+  assign axil_if.wready_o  = awready_ff; // simultaneous with axil_if.awready
+  assign axil_if.bvalid_o  = bvalid_ff;
+  assign axil_if.rvalid_o  = rvalid_ff;
+  assign axil_if.rdata_o   = rdata_ff;
 
   import vga_axil_pkg::axil_resp_t, vga_axil_pkg::OKAY;
-  assign axil_if.rresp   = axil_resp_t'(OKAY);
-  assign axil_if.bresp   = axil_resp_t'(OKAY);
+  assign axil_if.rresp_o   = axil_resp_t'(OKAY);
+  assign axil_if.bresp_o   = axil_resp_t'(OKAY);
 // END out assignments
 
 endmodule
