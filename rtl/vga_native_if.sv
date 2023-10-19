@@ -20,11 +20,41 @@ interface vga_native_if #(
   logic         read_en_sync; // Synchronous read. One clock width
 // END read2axil_channel
 
-// START write2axil_channel
+// START write2native_channel
   native_addr_t addr_write;
   axil_data_t   data2native;
   logic         write_en;    // One clock width.
-// END write2axil_channel
+// END write2native_channel
+
+  modport axil (
+    input .clk_i   (clk),
+    input .arst_ni (arst_n),
+
+    // read2axil_channel
+    input  .data_i         (data2axil),
+    output .addr_read_o    (addr_read),
+    output .read_en_sync_o (read_en_sync),
+
+    // write2native_channel
+    output .data_o       (data2native),
+    output .addr_write_o (addr_write),
+    output .write_en_o   (write_en)
+  );
+
+  modport native (
+    input .clk_i   (clk),
+    input .arst_ni (arst_n),
+
+    // read2axil_channel
+    input  .data_i         (data2axil),
+    output .addr_read_o    (addr_read),
+    output .read_en_sync_o (read_en_sync),
+
+    // write2native_channel
+    output .data_o       (data2native),
+    output .addr_write_o (addr_write),
+    output .write_en_o   (write_en)
+  );
 
   `include "sva/vga_native_if_sva.svh"
 endinterface
