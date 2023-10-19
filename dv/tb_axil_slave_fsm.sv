@@ -25,6 +25,84 @@ module tb_axil_slave_fsm ();
     .native_if
   );
 
+  task automatic read_master(input axil_addr_t addr, output axil_resp_e resp, output axil_data_t data);
+    @(posedge axil_if.clk);
+    axil_if.araddr  <= addr;
+    axil_if.arvalid <= 1'b1;
+    axil_if.rready  <= 1'b1;
+    do begin
+      @(posedge axil_if.clk);
+    end while (!axil_if.arready);
+
+    axil_if.arvalid <= 1'b0;
+
+    do begin
+      @(posedge axil_if.clk);
+    end while (!axil_if.rvalid);
+
+    resp = axil_resp_e'(axil_if.rresp);
+    data = axil_if.rdata;
+
+    reset_master_r_chan();
+  endtask
+
+  task automatic write_master(input axil_addr_t addr, input axil_data_t data, output axil_resp_e resp);
+    @(posedge axil_if.clk);
+    axil_if.awaddr  <= addr;
+    axil_if.awvalid <= 1'b1;
+    axil_if.wvalid  <= 1'b1;
+    axil_if.wdata   <= data;
+    axil_if.bready  <= 1'b1;
+    axil_if.wstrb   <= '1;
+    do begin
+      @(posedge axil_if.clk);
+    end while (!axil_if.awready);
+
+    axil_if.awvalid  <= 1'b0;
+
+    while (!axil_if.wready) begin
+      @(posedge axil_if.clk);
+    end
+
+    axil_if.wvalid  <= 1'b0;
+
+    do begin
+      @(posedge axil_if.clk);
+    end while (!axil_if.bvalid);
+
+    resp = axil_resp_e'(axil_if.bresp);
+
+    reset_master_w_chan();
+  endtask
+
+  function automatic void reset_master_w_chan(); // Only reset the axil specific(not clk, not reset)
+    // AW-channel
+    axil_if.awaddr  <= '0;
+    axil_if.awvalid <= '0;
+
+    // W-channel
+    axil_if.wdata  <= '0;
+    axil_if.wstrb  <= '0;
+    axil_if.wvalid <= '0;
+
+    // B-channel
+    axil_if.bready <= '0;
+  endfunction
+
+  function automatic void reset_master_r_chan(); // Only reset the axil specific(not clk, not reset)
+    // AR-channel
+    axil_if.araddr  <= '0;
+    axil_if.arvalid <= '0;
+
+    // R-channel
+    axil_if.rready <= '0;
+  endfunction
+
+  function automatic void reset_master(); // Only reset the axil specific(not clk, not reset)
+    reset_master_w_chan();
+    reset_master_r_chan();
+  endfunction
+
   task automatic handle_write2slave();
     @(posedge clk_if.clk);
 
@@ -81,7 +159,7 @@ module tb_axil_slave_fsm ();
     $display($sformatf("reseted. Time == %f", $time));
     clear();
     arst_n_if.arst_n <= 1'b0;
-    axil_if.reset_master();
+    reset_master();
     #duration;
     arst_n_if.arst_n <= 1'b1;
   endtask
@@ -120,7 +198,7 @@ module tb_axil_slave_fsm ();
       data          = axil_data_t'(word_counter);
       word_counter += AXIL_ADDR_WIDTH / $bits(byte);
 
-      axil_if.write(.addr(addr), .data(data), .resp(response));
+      write_master(.addr(addr), .data(data), .resp(response));
       check_resp(.expected(OKAY), .actual(response));
 
       // store packet into the expected map
@@ -138,7 +216,7 @@ module tb_axil_slave_fsm ();
       addr          = axil_addr_t'(word_counter);
       word_counter += AXIL_ADDR_WIDTH / $bits(byte);
 
-      axil_if.read(.addr(addr), .resp(response), .data(data));
+      read_master(.addr(addr), .resp(response), .data(data));
       check_resp(.expected(OKAY), .actual(response));
 
       // scoreboarding(check result)
@@ -164,7 +242,7 @@ module tb_axil_slave_fsm ();
         end
         if (!std::randomize(data)) $error("randomization failed");
 
-        axil_if.write(.addr(addr), .data(data), .resp(response));
+        write_master(.addr(addr), .data(data), .resp(response));
         check_resp(.expected(OKAY), .actual(response));
       end
 
@@ -181,7 +259,7 @@ module tb_axil_slave_fsm ();
         expected_data[addr]                   = data;
         actual_data  [axil2native_addr(addr)] = data;
 
-        axil_if.read(.addr(addr), .resp(response), .data(data));
+        read_master(.addr(addr), .resp(response), .data(data));
         check_resp(.expected(OKAY), .actual(response));
 
         // scoreboarding(check result)
@@ -213,7 +291,7 @@ module tb_axil_slave_fsm ();
           end
           if (!std::randomize(data)) $error("randomization failed");
 
-          axil_if.write(.addr(addr), .data(data), .resp(response));
+          write_master(.addr(addr), .data(data), .resp(response));
           check_resp(.expected(OKAY), .actual(response));
 
           // store packet into the expected map
@@ -239,7 +317,7 @@ module tb_axil_slave_fsm ();
 
           addr = address_pool[0];
 
-          axil_if.read(.addr(addr), .resp(response), .data(data));
+          read_master(.addr(addr), .resp(response), .data(data));
           check_resp(.expected(OKAY), .actual(response));
 
           // scoreboarding(check result)
