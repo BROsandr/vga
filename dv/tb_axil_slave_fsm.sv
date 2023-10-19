@@ -118,7 +118,7 @@ module tb_axil_slave_fsm ();
 
       addr          = axil_addr_t'(word_counter);
       data          = axil_data_t'(word_counter);
-      word_counter += AXIL_ADDR_WIDTH / $size(byte);
+      word_counter += AXIL_ADDR_WIDTH / $bits(byte);
 
       axil_if.write(.addr(addr), .data(data), .resp(response));
       check_resp(.expected(OKAY), .actual(response));
@@ -136,7 +136,7 @@ module tb_axil_slave_fsm ();
       axil_resp_e response;
 
       addr          = axil_addr_t'(word_counter);
-      word_counter += AXIL_ADDR_WIDTH / $size(byte);
+      word_counter += AXIL_ADDR_WIDTH / $bits(byte);
 
       axil_if.read(.addr(addr), .resp(response), .data(data));
       check_resp(.expected(OKAY), .actual(response));
