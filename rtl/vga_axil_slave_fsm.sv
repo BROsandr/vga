@@ -9,13 +9,13 @@ module vga_axil_slave_fsm
 
 // START fsm state_ff, state_next logic
   localparam int  NUM_OF_STATES = 5;
-  localparam type state_e = enum bit [$clog2(NUM_OF_STATES)-1:0] {
+  typedef enum bit [$clog2(NUM_OF_STATES)-1:0] {
     StIdle,
     StAddr,
     StData,
     StResp,
     StAddrData
-  };
+  } state_e;
   state_e read_state_ff, read_state_next, write_state_ff, write_state_next;
 
   always_ff @(posedge axil_if.clk_i or negedge axil_if.arst_ni) begin

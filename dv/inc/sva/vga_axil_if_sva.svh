@@ -82,10 +82,10 @@ AXI4_ERRM_AWVALID_RESET : assert property (
 end
 
 localparam int  NUM_OF_VALID_TYPES = 2;
-localparam type valid_e = enum bit [$clog2(NUM_OF_VALID_TYPES)-1:0] {
+typedef enum bit [$clog2(NUM_OF_VALID_TYPES)-1:0] {
   AddrValid,
   DataValid
-};
+} valid_e;
 typedef valid_e valid_sequence[$];
 valid_sequence  write_sequence;
 valid_sequence  read_sequence;
